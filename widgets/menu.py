@@ -18,6 +18,7 @@ async def render(templates: Templates, columns) -> Optional[Session]:
 
     if selected_page is not None:
         namespace, name = st.session_state['menu'] = selected_page
-        with columns[0]:
-            return await templates.render(namespace, name, columns[1:])
+        if columns:
+            columns.pop(0).__enter__()
+        return await templates.render(namespace, name, columns)
     return None

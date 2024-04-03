@@ -22,4 +22,4 @@ spec:
       metadata:
         newColumn: true
       spec:
-        key: session
+        key: /session

@@ -1,0 +1,30 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Widget
+metadata:
+  name: command
+  namespace: desktop_environment
+spec:
+  actions:
+    - name: sessions
+      kind: SessionSelect
+      spec:
+        label: 명령을 내릴 노드들을 선택해주세요.
+        multiple: true
+
+    - name: command
+      kind: CommandRead
+      spec:
+        label: 💲 명령어를 입력해주세요.
+        type: CommandLine
+
+    - name: command_exec
+      kind: CommandExec
+      metadata:
+        newColumn: true
+      spec:
+        command: /command/value
+        session: /sessions/items
+        label: 가 즈 아
+        labelCheck: 아래의 코드를 실행하려는 것이 맞으신지 확인해주세요!
+        labelSuccess: ✅ 실행 완료했습니다!

@@ -1,7 +1,11 @@
 inflection
 jinja2
 jsonpointer
+langchain
+langchain-openai
 openark
+pandas
 python-dotenv
 pyyaml
 streamlit
+streamlit-aggrid

@@ -66,7 +66,12 @@ class Templates:
                 else:
                     action_new_column = False
 
-            updated_session = session[action_name] = st.session_state['session'] = await action_renderer(self, session, action_spec)
+            updated_session = session[action_name] = st.session_state['session'] = await action_renderer(
+                templates=self,
+                session=session,
+                name=action_name,
+                spec=action_spec,
+            )
 
             if action_new_column:
                 action_column.__exit__(None, None, None)

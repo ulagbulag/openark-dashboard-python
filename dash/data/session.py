@@ -13,6 +13,14 @@ class SessionRef:
         self.user_name = user_name
 
     @classmethod
+    def from_aggrid(cls, data: dict[str, str]) -> Self:
+        return cls(
+            namespace=data['Namespace'],
+            node_name=data['NodeName'],
+            user_name=data['Name'],
+        )
+
+    @classmethod
     def from_data(cls, data: dict[str, str]) -> Self:
         return cls(
             namespace=data['namespace'],
@@ -30,6 +38,13 @@ class SessionRef:
 
     def _novnc_url(self, kind: str) -> str:
         return f'https://mobilex.kr/dashboard/vnc/{kind}.html?host=mobilex.kr/user/{self.user_name}/vnc/&scale=true'
+
+    def to_aggrid(self) -> dict[str, str]:
+        return {
+            'Name': self.user_name,
+            'Namespace': self.namespace,
+            'NodeName': self.node_name,
+        }
 
     def to_dict(self) -> dict[str, str]:
         return {

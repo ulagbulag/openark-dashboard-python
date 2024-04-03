@@ -1,3 +1,4 @@
+import jsonpointer
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -5,10 +6,11 @@ from dash.data.session import SessionRef
 from utils.templates import Session, Spec, Templates
 
 
-async def render(templates: Templates, session: Session, spec: Spec) -> Session:
+async def render(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
     # Get metadata
-    st.write(session)
-    session = SessionRef.from_data(session[spec['key']])
+    session = SessionRef.from_data(
+        jsonpointer.resolve_pointer(session, spec['key']),
+    )
 
     # Show available commands
     commands = {
@@ -25,7 +27,7 @@ async def render(templates: Templates, session: Session, spec: Spec) -> Session:
             )
 
     return {
-        'result': 'ok',
+        'state': 'Ok',
     }
 
 

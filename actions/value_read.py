@@ -1,9 +1,10 @@
 import datetime
-import inflection
 import ipaddress
-import streamlit as st
 from typing import Any
 import uuid
+
+import inflection
+import streamlit as st
 
 from dash.client import DashClient
 
