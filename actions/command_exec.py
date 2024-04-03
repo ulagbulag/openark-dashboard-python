@@ -32,6 +32,12 @@ async def render(templates: Templates, session: Session, name: str, spec: Spec) 
         value=True,
     )
 
+    wait = st.checkbox(
+        key=f'{name}/wait',
+        label='끝날 때까지 대기',
+        value=True,
+    )
+
     if not st.button(
         key=f'{name}/submit',
         label=spec['label'],
@@ -40,11 +46,12 @@ async def render(templates: Templates, session: Session, name: str, spec: Spec) 
             'state': 'Cancel',
         }
 
-    with st.spinner('명령 전달 중...'):
+    with st.spinner('명령 실행 중...' if wait else '명령 전달 중...'):
         templates.dash_client.post_user_exec_broadcast(
             command=command,
             terminal=terminal,
             target_user_names=user_names,
+            wait=wait,
         )
 
     st.info(spec['labelSuccess'])

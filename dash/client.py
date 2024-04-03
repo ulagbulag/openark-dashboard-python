@@ -344,6 +344,7 @@ class DashClient:
         self, command: str,
         terminal: bool,
         target_user_names: list[str] | None,
+        wait: bool = False,
     ) -> None:
         return self._call_raw(
             method='POST',
@@ -354,6 +355,7 @@ class DashClient:
                     terminal=terminal,
                 ),
                 'userNames': target_user_names,
+                'wait': wait,
             },
         )
 
@@ -373,6 +375,7 @@ def _parse_command(raw: str, terminal: bool) -> list[str]:
     if terminal:
         command += [
             'xfce4-terminal',
+            '--disable-server',
             '-x',
         ]
     command += [
