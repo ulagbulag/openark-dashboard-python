@@ -1,0 +1,7 @@
+inflection
+jinja2
+jsonpointer
+openark
+python-dotenv
+pyyaml
+streamlit

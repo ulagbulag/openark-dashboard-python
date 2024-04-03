@@ -1,0 +1,25 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Widget
+metadata:
+  name: remote_desktop
+  namespace: desktop_environment
+spec:
+  actions:
+    # - name: node
+    #   kind: StorageRead
+    #   spec:
+    #     storage: k8s.io/_/nodes/v1
+    #     label: 원격 제어할 노드를 선택해주세요.
+
+    - name: session
+      kind: SessionSelect
+      spec:
+        label: 원격 제어할 노드를 선택해주세요.
+
+    - name: show_vnc
+      kind: RemoteVnc
+      metadata:
+        newColumn: true
+      spec:
+        key: session
