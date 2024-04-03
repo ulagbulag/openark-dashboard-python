@@ -3,7 +3,7 @@ jinja2
 jsonpointer
 langchain
 langchain-openai
-openark
+# openark
 pandas
 python-dotenv
 pyyaml

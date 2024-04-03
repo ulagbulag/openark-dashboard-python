@@ -20,7 +20,7 @@ async def render(templates: Templates, session: Session, name: str, spec: Spec) 
             SessionRef.from_aggrid(session).user_name
             for session in maybe_sessions
         ]
-    st.text(f'* 실행할 세션 수: {len(user_names)}')
+    st.text(f'* 노드 수: {len(user_names)}')
 
     command: str = jsonpointer.resolve_pointer(session, spec['command'])
     st.text('* ' + spec['labelCheck'])
@@ -29,6 +29,7 @@ async def render(templates: Templates, session: Session, name: str, spec: Spec) 
     terminal = st.checkbox(
         key=f'{name}/terminal',
         label='GUI 모드로 실행',
+        value=True,
     )
 
     if not st.button(
