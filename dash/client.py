@@ -369,15 +369,16 @@ def _handle_error(path: str, response: requests.Response) -> Never:
 
 
 def _parse_command(raw: str, terminal: bool) -> list[str]:
+    command = []
     if terminal:
-        return [
+        command += [
             'xfce4-terminal',
-            '-e',
-            raw,
+            '-x',
         ]
-    else:
-        return [
-            '/bin/sh',
-            '-c',
-            raw,
-        ]
+    command += [
+        '/usr/bin/env',
+        'sh',
+        '-c',
+        raw,
+    ]
+    return command
