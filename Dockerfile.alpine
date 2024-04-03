@@ -32,7 +32,6 @@ RUN apk add --no-cache \
     py3-jsonschema \
     py3-markdown-it-py \
     py3-numpy \
-    py3-packaging \
     py3-pandas \
     py3-pillow \
     py3-pip \
