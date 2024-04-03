@@ -17,6 +17,7 @@ CMD [ "streamlit", "run", "main.py", "--browser.gatherUsageStats=False", "--serv
 # Install dependencies
 RUN apk add --no-cache \
     cython \
+    gcc \
     # py3-altair \
     py3-blinker \
     py3-cachetools \

@@ -22,6 +22,7 @@ CMD [ "streamlit", "run", "main.py", "--browser.gatherUsageStats=False", "--serv
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     cython3 \
+    gcc \
     # python3-altair \
     python3-blinker \
     python3-cachetools \
