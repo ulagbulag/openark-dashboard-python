@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 import inflection
 import jinja2
+import jsonpointer
 import streamlit as st
 import yaml
 
@@ -25,9 +26,11 @@ class Templates:
         for filename in os.listdir(path):
             filepath = f'{path}/{filename}'
             if os.path.isfile(filepath):
-                namespace, name, spec = _load_template(filepath)
+                namespace, name, title, spec = _load_template(filepath)
                 if spec is not None:
-                    self._namespaces.setdefault(namespace, []).append(name)
+                    self._namespaces.setdefault(namespace, []).append(
+                        (name, title),
+                    )
                     self._templates[(namespace, name)] = spec
 
     @property
@@ -92,22 +95,32 @@ def _load_template(path: str):
 
     raw = yaml.safe_load(open(path, 'r'))
 
-    api_version = raw['apiVersion']
+    api_version = jsonpointer.resolve_pointer(raw, '/apiVersion')
     assert api_version == 'ark.ulagbulag.io/v1alpha1', f'Unknown API version: {
         path!r
     }'
 
-    kind = raw['kind']
+    kind = jsonpointer.resolve_pointer(raw, '/kind')
     assert kind == 'Widget', f'Unknown API Kind: {
         path!r
     } -> {name}'
 
-    name = raw['metadata']['name']
+    name = jsonpointer.resolve_pointer(raw, '/metadata/name')
     assert name == filename, f'Template name mismatch: {
         path!r
     } -> {name}'
 
-    namespace = raw['metadata'].get('namespace', 'default')
-    spec = raw['spec']
+    namespace = jsonpointer.resolve_pointer(
+        raw,
+        '/metadata/namespace',
+        default='default',
+    )
 
-    return namespace, name, spec
+    title = jsonpointer.resolve_pointer(
+        raw,
+        '/metadata/annotations/dash.ulagbulag.io~1title',
+        default=inflection.titleize(name),
+    )
+
+    spec = jsonpointer.resolve_pointer(raw, '/spec')
+    return namespace, name, title, spec

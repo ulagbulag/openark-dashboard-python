@@ -12,8 +12,8 @@ async def render(templates: Templates, columns) -> Optional[Session]:
     for namespace, names in templates.get_names().items():
         st.divider()
         st.subheader(inflection.titleize(namespace))
-        for name in names:
-            if st.button(inflection.titleize(name)):
+        for name, title in names:
+            if st.button(title):
                 selected_page = namespace, name
 
     if selected_page is not None:

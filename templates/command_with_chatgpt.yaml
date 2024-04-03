@@ -4,8 +4,8 @@ kind: Widget
 metadata:
   name: command_with_chatgpt
   namespace: desktop_environment
-  metadata:
-    dash.ulagbulag.io/alias: Command with ChatGPT
+  annotations:
+    dash.ulagbulag.io/title: Command with ChatGPT
 spec:
   actions:
     - name: sessions
