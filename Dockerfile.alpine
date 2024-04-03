@@ -32,6 +32,7 @@ RUN apk add --no-cache \
     py3-jsonschema \
     py3-markdown-it-py \
     py3-numpy \
+    py3-packaging \
     py3-pandas \
     py3-pillow \
     py3-pip \
@@ -61,7 +62,7 @@ RUN apk add --no-cache \
 ADD ./requirements.txt /src/requirements.txt
 
 # Install python dependencies
-RUN python3 -m pip install --no-cache-dir --requirement ./requirements.txt \
+RUN python3 -m pip install --ignore-installed --no-cache-dir --requirement ./requirements.txt \
     # Cleanup
     && find /usr -type d -name '*__pycache__' -prune -exec rm -rf {} \;
 
