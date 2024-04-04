@@ -1,5 +1,5 @@
 # Configure environment variables
-export ALPINE_VERSION := env_var_or_default('ALPINE_VERSION', '3.17')
+export ALPINE_VERSION := env_var_or_default('ALPINE_VERSION', '3.19')
 export CUDA_VERSION := env_var_or_default('CUDA_VERSION', '12.2.0')
 export OCI_IMAGE := env_var_or_default('OCI_IMAGE', 'quay.io/ulagbulag/openark-dash-management-tool')
 export OCI_IMAGE_VERSION := env_var_or_default('OCI_IMAGE_VERSION', 'latest')
@@ -29,7 +29,7 @@ oci-build:
     --build-arg UBUNTU_VERSION="${UBUNTU_VERSION}" \
     --platform "${OCI_PLATFORMS}" \
     --pull \
-    --push \
+    --push >logs.txt 2>logs.txt \
     .
 
 oci-push: oci-build

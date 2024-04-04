@@ -15,7 +15,7 @@ Spec = Dict[str, Any]
 
 
 class Templates:
-    def __init__(self, path: str = './templates') -> None:
+    def __init__(self, path: str) -> None:
         self._dash_client = DashClient()
         self._env = jinja2.Environment(
             enable_async=True,

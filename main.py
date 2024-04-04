@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 import dotenv
 import streamlit as st
@@ -19,7 +20,9 @@ async def main():
     except StreamlitAPIException:
         pass
 
-    templates = utils.templates.Templates()
+    templates = utils.templates.Templates(
+        path=os.environ.get('OPENARK_TEMPLATES_DIR', './templates'),
+    )
     with st.sidebar:
         widgets.profile.render()
 

@@ -15,6 +15,7 @@ FROM "nvcr.io/nvidia/${NVIDIA_IMAGE_NAME}:${CUDA_VERSION}-runtime-ubuntu${UBUNTU
 ARG DEBIAN_FRONTEND='noninteractive'
 
 # Server Configuration
+ENV OPENARK_TEMPLATES_DIR='/src/templates'
 EXPOSE 80/tcp
 WORKDIR /src
 CMD [ "streamlit", "run", "main.py", "--browser.gatherUsageStats=False", "--server.address=0.0.0.0", "--server.baseUrlPath=/dash/", "--server.enableCORS=false", "--server.enableXsrfProtection=false", "--server.headless=true", "--server.port=80" ]
@@ -22,15 +23,12 @@ CMD [ "streamlit", "run", "main.py", "--browser.gatherUsageStats=False", "--serv
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     cython3 \
-    gcc \
-    g++ \
     # python3-altair \
     python3-blinker \
     python3-cachetools \
     python3-certifi \
     python3-charset-normalizer \
     python3-click \
-    python3-dev \
     python3-entrypoints \
     python3-git \
     python3-gitdb \
@@ -72,7 +70,7 @@ RUN apt-get update && apt-get install -y \
 ADD ./requirements.txt /src/requirements.txt
 
 # Install python dependencies
-RUN python3 -m pip install --no-cache-dir --requirement ./requirements.txt \
+RUN python3 -m pip install --break-system-packages --no-cache-dir --requirement ./requirements.txt \
     # Cleanup
     && find /usr -type d -name '*__pycache__' -prune -exec rm -rf {} \;
 
