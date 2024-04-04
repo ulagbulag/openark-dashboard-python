@@ -3,13 +3,12 @@
 # found in the LICENSE file.
 
 # Configure environment variables
-ARG CUDA_VERSION="12.3.2"
-ARG NVIDIA_IMAGE_NAME="cuda"
+ARG DEBIAN_VERSION="slim"
 ARG PACKAGE="dash-streamlit"
-ARG UBUNTU_VERSION="22.04"
+ARG PYTHON_VERSION="3.12"
 
 # Be ready for serving
-FROM "nvcr.io/nvidia/${NVIDIA_IMAGE_NAME}:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}"
+FROM "docker.io/library/python:${PYTHON_VERSION}-${DEBIAN_VERSION}"
 
 # Package Manager Configuration
 ARG DEBIAN_FRONTEND='noninteractive'
@@ -46,7 +45,7 @@ RUN apt-get update && apt-get install -y \
     # python3-pyarrow \
     # python3-pydeck \
     python3-pygments \
-    python3-pympler \
+    # python3-pympler \
     python3-requests \
     python3-rich \
     python3-semver \

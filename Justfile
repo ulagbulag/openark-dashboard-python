@@ -1,9 +1,10 @@
 # Configure environment variables
-export ALPINE_VERSION := env_var_or_default('ALPINE_VERSION', '3.19')
-export CUDA_VERSION := env_var_or_default('CUDA_VERSION', '12.2.0')
+export CUDA_VERSION := env_var_or_default('CUDA_VERSION', '12.3.2')
+export DEBIAN_VERSION := env_var_or_default('DEBIAN_VERSION', 'slim')
 export OCI_IMAGE := env_var_or_default('OCI_IMAGE', 'quay.io/ulagbulag/openark-dash-management-tool')
 export OCI_IMAGE_VERSION := env_var_or_default('OCI_IMAGE_VERSION', 'latest')
 export OCI_PLATFORMS := env_var_or_default('OCI_PLATFORMS', 'linux/amd64')
+export PYTHON_VERSION := env_var_or_default('PYTHON_VERSION', '3.12')
 export UBUNTU_VERSION := env_var_or_default('UBUNTU_VERSION', '22.04')
 
 default:
@@ -22,14 +23,15 @@ run *ARGS:
 
 oci-build:
   docker buildx build \
-    --file './Dockerfile.alpine' \
+    --file './Dockerfile.ubuntu' \
     --tag "${OCI_IMAGE}:${OCI_IMAGE_VERSION}" \
-    --build-arg ALPINE_VERSION="${ALPINE_VERSION}" \
     --build-arg CUDA_VERSION="${CUDA_VERSION}" \
+    --build-arg DEBIAN_VERSION="${DEBIAN_VERSION}" \
+    --build-arg PYTHON_VERSION="${PYTHON_VERSION}" \
     --build-arg UBUNTU_VERSION="${UBUNTU_VERSION}" \
     --platform "${OCI_PLATFORMS}" \
     --pull \
-    --push >logs.txt 2>logs.txt \
+    --push \
     .
 
 oci-push: oci-build
