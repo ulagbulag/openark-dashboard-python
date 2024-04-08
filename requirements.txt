@@ -1,6 +1,7 @@
 inflection
 jinja2
 jsonpointer
+kubernetes
 langchain
 langchain-openai
 # openark

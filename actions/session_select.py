@@ -5,11 +5,12 @@ from pandas import DataFrame
 import streamlit as st
 
 from dash.data.session import SessionRef
-from utils.templates import Session, Spec, Templates
+from utils.types import Session, Spec
+from utils.widgets import Widgets
 from widgets import selector
 
 
-async def render(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
+async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     if 'filter' in spec:
         drawer = _draw_read_filter
     elif spec.get('multiple', False) == True:
@@ -18,15 +19,15 @@ async def render(templates: Templates, session: Session, name: str, spec: Spec) 
         drawer = _draw_read_one
 
     return drawer(
-        templates=templates,
+        widgets=widgets,
         session=session,
         name=name,
         spec=spec,
     )
 
 
-def _draw_read_filter(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
-    sessions = templates.dash_client.get_user_session_list()
+def _draw_read_filter(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
+    sessions = widgets.dash_client.get_user_session_list()
 
     pattern = spec['filter']
     session_filtered = [
@@ -44,12 +45,12 @@ def _draw_read_filter(templates: Templates, session: Session, name: str, spec: S
     }
 
 
-def _draw_read_multiple(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
+def _draw_read_multiple(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     st.subheader(spec['label'])
 
     sessions = DataFrame(
         session.to_aggrid()
-        for session in templates.dash_client.get_user_session_list()
+        for session in widgets.dash_client.get_user_session_list()
     )
     sessions_selected = selector.dataframe(
         df=sessions,
@@ -62,8 +63,8 @@ def _draw_read_multiple(templates: Templates, session: Session, name: str, spec:
     }
 
 
-def _draw_read_one(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
-    sessions = templates.dash_client.get_user_session_list()
+def _draw_read_one(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
+    sessions = widgets.dash_client.get_user_session_list()
     session: Optional[SessionRef] = st.selectbox(
         label=spec['label'],
         options=sessions,

@@ -1,28 +1,25 @@
 import os
-from typing import Any, Dict
+from typing import Any
 
 import inflection
-import jinja2
 import jsonpointer
 import streamlit as st
 import yaml
 
 from dash.client import DashClient
+from utils.actions import Actions
 
 
-Session = Dict[str, Any]
-Spec = Dict[str, Any]
-
-
-class Templates:
+class Widgets:
     def __init__(self, path: str) -> None:
-        self._dash_client = DashClient()
-        self._env = jinja2.Environment(
-            enable_async=True,
+        self._actions = Actions(
+            path=f'{path}/actions',
         )
+        self._dash_client = DashClient()
         self._namespaces = {}
         self._templates = {}
 
+        path = f'{path}/widgets'
         for filename in os.listdir(path):
             filepath = f'{path}/{filename}'
             if os.path.isfile(filepath):
@@ -34,21 +31,22 @@ class Templates:
                     self._templates[(namespace, name)] = spec
 
     @property
+    def actions(self) -> Actions:
+        return self._actions
+
+    @property
     def dash_client(self) -> DashClient:
         return self._dash_client
 
     def get_names(self):
         return dict(self._namespaces)
 
-    async def render(self, namespace: str, name: str, columns: list[str]) -> None:
+    async def render(self, namespace: str, name: str, columns: list[Any]) -> None:
         template = self._templates[(namespace, name)]
         actions = template['actions']
 
         session = st.session_state.get('session', {})
-        for action in actions:
-            action_template = self._env.from_string(yaml.dump(action))
-            action_widget = yaml.safe_load(await action_template.render_async(**session))
-
+        for action_widget in actions:
             action_name = action_widget['name']
             action_kind = inflection.underscore(action_widget['kind'])
             action_spec = action_widget.get('spec', {})
@@ -70,7 +68,7 @@ class Templates:
                     action_new_column = False
 
             updated_session = session[action_name] = st.session_state['session'] = await action_renderer(
-                templates=self,
+                widgets=self,
                 session=session,
                 name=action_name,
                 spec=action_spec,

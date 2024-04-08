@@ -1,0 +1,128 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ metadata.name }}"
+  namespace: "{{ metadata.namespace }}"
+  labels:
+    kind: power-management
+    name: "{{ metadata.name }}"
+    kissService: "false"
+    serviceType: dash
+spec:
+  backoffLimit: 0
+  suspend: false
+  ttlSecondsAfterFinished: 1
+  template:
+    metadata:
+      labels:
+        kind: power-management
+        name: "{{ metadata.name }}"
+        kissService: "false"
+        serviceType: dash
+    spec:
+{% if ( spec.force and 'power' in spec.box.spec ) or spec.command == "on" %}
+      affinity:
+        nodeAffinity:
+          # KISS normal compute nodes should be preferred
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: node-role.kubernetes.io/kiss-ephemeral-control-plane
+                    operator: DoesNotExist
+            - weight: 2
+              preference:
+                matchExpressions:
+                  - key: node-role.kubernetes.io/kiss
+                    operator: In
+                    values:
+                      - Compute
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/kiss
+                    operator: In
+                    values:
+                      - Compute
+                      - ControlPlane
+{% else %}
+      nodeName: "{{ spec.box.spec.machine.uuid }}"
+{% endif %}
+      restartPolicy: OnFailure
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: kiss-system
+      containers:
+{% if spec.force and 'power' in spec.box.spec %}
+{% if spec.box.spec.power.type == 'IntelAMT' %}
+        - name: power-management-wsmancli
+          image: quay.io/ulagbulag/openark-wsmancli:latest
+          args:
+            - power
+            - "{{ spec.command }}"
+          env:
+            - name: AMT_HOSTNAME
+              value: "{{ spec.box.spec.power.address }}"
+            - name: AMT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kiss-config
+                  key: power_intel_amt_username
+            - name: AMT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kiss-config
+                  key: power_intel_amt_password
+{% elif spec.box.spec.power.type == 'Ipmi' %}
+        - name: power-management-ipmitool
+          image: quay.io/ulagbulag/openark-ipmitool:latest
+          args:
+            - power
+            - "{{ spec.command }}"
+{% endif %}
+{% elif spec.command == "on" %}
+{# TODO: to be implemented (WOL) #}
+        - name: power-management-wol
+          image: quay.io/app-sre/ubi8-ubi:latest
+          command:
+            - /bin/true
+{% else %}
+        - name: power-management-host
+          image: quay.io/app-sre/ubi8-ubi:latest
+          command:
+{% if spec.command == "off" %}
+            - poweroff
+{% else %}
+            - reboot
+{% endif %}
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: run
+              mountPath: /run
+            - name: sys-fs-cgroup
+              mountPath: /sys/fs/cgroup
+{% endif %}
+          resources:
+            requests:
+              cpu: 30m
+              memory: 20Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+{% if not ( spec.force and 'power' in spec.box.spec ) and spec.command != "on" %}
+      hostIPC: true
+      restartPolicy: Never
+      volumes:
+        - name: run
+          hostPath:
+            path: /run
+            type: Directory
+        - name: sys-fs-cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
+{% endif %}

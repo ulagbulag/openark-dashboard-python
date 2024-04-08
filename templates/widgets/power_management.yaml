@@ -1,0 +1,27 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Widget
+metadata:
+  name: power_management
+  namespace: desktop_environment
+spec:
+  actions:
+    - name: nodes
+      kind: KubernetesObjectRead
+      spec:
+        # apiVersion: v1
+        # plural: nodes
+        apiVersion: kiss.ulagbulag.io/v1alpha1
+        plural: boxes
+        filter: desktop-nuc-gen1[12]-[0-9]+
+
+    - name: power_management
+      kind: PowerManagement
+      metadata:
+        newColumn: true
+      spec:
+        key: /nodes
+        label: 어떤 맛으로 실행할까요?
+        labelForce: 강제 실행
+        labelSubmit: 집행하기
+        labelSuccess: ✅ 실행 준비됐습니다!

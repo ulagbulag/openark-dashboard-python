@@ -3,10 +3,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from dash.data.session import SessionRef
-from utils.templates import Session, Spec, Templates
+from utils.types import Session, Spec
+from utils.widgets import Widgets
 
 
-async def render(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
+async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     # Get metadata
     session = SessionRef.from_data(
         jsonpointer.resolve_pointer(session, spec['key']),

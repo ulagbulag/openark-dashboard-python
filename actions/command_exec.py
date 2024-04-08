@@ -3,10 +3,11 @@ import jsonpointer
 import streamlit as st
 
 from dash.data.session import SessionRef
-from utils.templates import Session, Spec, Templates
+from utils.types import Session, Spec
+from utils.widgets import Widgets
 
 
-async def render(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
+async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     st.divider()
 
     maybe_sessions: Union[dict[str, str], list[dict[str, str]]] = jsonpointer.resolve_pointer(
@@ -47,14 +48,14 @@ async def render(templates: Templates, session: Session, name: str, spec: Spec) 
         }
 
     with st.spinner('명령 실행 중...' if wait else '명령 전달 중...'):
-        templates.dash_client.post_user_exec_broadcast(
+        widgets.dash_client.post_user_exec_broadcast(
             command=command,
             terminal=terminal,
             target_user_names=user_names,
             wait=wait,
         )
 
-    st.info(spec['labelSuccess'])
+    st.info(spec.get('labelSuccess', 'Succeeded!'))
 
     return {
         'state': 'Ok',

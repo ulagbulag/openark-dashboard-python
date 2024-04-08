@@ -6,10 +6,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 import streamlit as st
 
-from utils.templates import Session, Spec, Templates
+from utils.types import Session, Spec
+from utils.widgets import Widgets
 
 
-async def render(templates: Templates, session: Session, name: str, spec: Spec) -> Session:
+async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     # Parse type
     type_ = spec.get('type', 'CommandLine')
     match type_:
