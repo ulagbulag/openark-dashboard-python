@@ -6,7 +6,7 @@ import yaml
 import jinja2
 import kubernetes as kube
 
-from utils.types import Specs, Template
+from utils.types import Template, Templates
 
 
 class Actions:
@@ -24,7 +24,7 @@ class Actions:
         self,
         namespace: str,
         name: str,
-        spec: Specs,
+        spec: Templates,
     ) -> List[Template]:
         template = self._env.from_string(self._load(name))
         timestamp = int(datetime.now().timestamp())
@@ -46,7 +46,7 @@ class Actions:
         self,
         namespace: str,
         name: str,
-        spec: Specs,
+        spec: Templates,
     ) -> None:
         templates = self._render(
             name=name,

@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, List, Optional, override
+from typing import Dict, List, Optional, Self, override
 from pydantic import BaseModel
 
 from PIL import Image
@@ -23,7 +23,7 @@ class Assets(BaseModel, BaseParser):
 
     _dash_client: Optional[DashClient] = None
     _logger: logging.Logger = logging.getLogger('openark-dashboard')
-    _widgets: Optional[Widgets] = None
+    _widgets: Optional[Widgets[Self]] = None
 
     @classmethod
     def asset_path(cls, path: str) -> str:
@@ -40,7 +40,7 @@ class Assets(BaseModel, BaseParser):
         return self._dash_client
 
     @property
-    def widgets(self) -> Widgets:
+    def widgets(self) -> Widgets[Self]:
         if self.debug or self._widgets is None:
             self._widgets = Widgets(
                 dash_client=self.dash_client,

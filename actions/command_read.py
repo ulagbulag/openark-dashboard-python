@@ -6,13 +6,17 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 import streamlit as st
 
-from utils.types import Session, Spec
-from utils.widgets import Widgets
+from assets import Assets
+from utils.types import DataModel, SessionReturn
 
 
-async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
+async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
     # Parse type
-    type_ = spec.get('type', 'CommandLine')
+    type_ = spec.get(
+        path='/type',
+        value_type=str,
+        default='CommandLine',
+    )
     match type_:
         case 'CommandLine':
             reader = _draw_read_raw
@@ -27,7 +31,11 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
     # Read a command line
     command = await reader(
         name=name,
-        label=spec['label'],
+        label=spec.get(
+            path='/label',
+            value_type=str,
+            default='💲 Please enter the command.',
+        ),
     )
 
     # Check command line

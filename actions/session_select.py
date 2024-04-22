@@ -4,32 +4,48 @@ from typing import Optional
 from pandas import DataFrame
 import streamlit as st
 
+from assets import Assets
 from dash.data.session import SessionRef
-from utils.types import Session, Spec
-from utils.widgets import Widgets
+from utils.types import DataModel, SessionReturn
 from widgets import selector
 
 
-async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
-    if 'filter' in spec:
-        drawer = _draw_read_filter
-    elif spec.get('multiple', False) == True:
-        drawer = _draw_read_multiple
-    else:
-        drawer = _draw_read_one
+async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+    filter = spec.get_optional(
+        path='/filter',
+        value_type=str,
+    )
+    if filter is not None:
+        return _draw_read_filter(
+            assets=assets,
+            pattern=filter,
+        )
 
-    return drawer(
-        widgets=widgets,
-        session=session,
-        name=name,
+    label = spec.get(
+        path='/label',
+        value_type=str,
+    )
+
+    if spec.get(
+        path='/multiple',
+        value_type=bool,
+        default=False,
+    ):
+        return _draw_read_multiple(
+            assets=assets,
+            spec=spec,
+            label=label,
+        )
+
+    return _draw_read_one(
+        assets=assets,
         spec=spec,
+        label=label,
     )
 
 
-def _draw_read_filter(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
-    sessions = widgets.dash_client.get_user_session_list()
-
-    pattern: str = spec['filter']
+def _draw_read_filter(assets: Assets, pattern: str) -> SessionReturn:
+    sessions = assets.dash_client.get_user_session_list()
 
     session_filtered = [
         session.to_aggrid()
@@ -46,12 +62,12 @@ def _draw_read_filter(widgets: Widgets, session: Session, name: str, spec: Spec)
     }
 
 
-def _draw_read_multiple(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
-    st.subheader(spec['label'])
+def _draw_read_multiple(assets: Assets, spec: DataModel, label: str) -> SessionReturn:
+    st.subheader(label)
 
     sessions = DataFrame(
         session.to_aggrid()
-        for session in widgets.dash_client.get_user_session_list()
+        for session in assets.dash_client.get_user_session_list()
     )
     sessions_selected = selector.dataframe(
         df=sessions,
@@ -64,10 +80,10 @@ def _draw_read_multiple(widgets: Widgets, session: Session, name: str, spec: Spe
     }
 
 
-def _draw_read_one(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
-    sessions = widgets.dash_client.get_user_session_list()
+def _draw_read_one(assets: Assets, spec: DataModel, label: str) -> SessionReturn:
+    sessions = assets.dash_client.get_user_session_list()
     selected_session: Optional[SessionRef] = st.selectbox(
-        label=spec['label'],
+        label=label,
         options=sessions,
     )
 

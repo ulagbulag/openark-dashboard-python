@@ -94,6 +94,7 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
     # Show selected menu
     with main_column:
         return await assets.widgets.render(
+            assets=assets,
             namespace=selected_menu.namespace,
             name=selected_menu.name,
             columns=extra_columns,

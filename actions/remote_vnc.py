@@ -1,23 +1,18 @@
-import jsonpointer
 import streamlit as st
 import streamlit.components.v1 as components
 
+from assets import Assets
 from dash.data.session import SessionRef
-from utils.types import Session, Spec
-from utils.widgets import Widgets
+from utils.types import DataModel, SessionReturn
 
 
-async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
+async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
     # Get metadata
-    key = spec['key']
-    if not isinstance(key, str):
-        raise ValueError('Key is not a string')
-
-    session_ref = jsonpointer.resolve_pointer(session, key)
-    if not isinstance(session_ref, dict):
-        raise ValueError('Session is not a dict')
-
-    session_ref = SessionRef.from_data(session_ref)
+    session_ref = SessionRef.from_data(session.get(
+        keys=spec,
+        path='/key',
+        value_type=dict,
+    ))
 
     # Show available commands
     commands = {

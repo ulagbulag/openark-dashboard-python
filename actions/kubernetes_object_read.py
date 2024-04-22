@@ -4,14 +4,20 @@ from typing import Any
 from jsonpointer import resolve_pointer
 import kubernetes as kube
 
-from utils.types import Session, Spec
-from utils.widgets import Widgets
+from assets import Assets
+from utils.types import DataModel, SessionReturn
 
 
-async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
+async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
     # Load resource API
-    *group, version = str(spec.get('apiVersion')).split('/')
-    plural = spec.get('plural')
+    *group, version = spec.get(
+        path='/apiVersion',
+        value_type=str,
+    ).split('/')
+    plural = spec.get(
+        path='/plural',
+        value_type=str,
+    )
 
     objects = kube.client.CustomObjectsApi().list_cluster_custom_object(
         group='/'.join(group),
@@ -19,7 +25,10 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
         plural=plural,
     )['items']
 
-    filter = spec.get('filter', None)
+    filter = spec.get_optional(
+        path='/filter',
+        value_type=str,
+    )
     if filter:
         objects = [
             object

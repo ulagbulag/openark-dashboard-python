@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import logging
 import os
-from typing import Any, Dict, List, Optional, Self, Tuple, override
+from typing import Any, Dict, List, Optional, Self, Tuple, TypeVar, override
 
 import inflection
 import jsonpointer
@@ -11,6 +11,7 @@ import yaml
 
 from dash.client import DashClient
 from utils.actions import Actions
+from utils.types import DataModel
 
 
 class _TemplateRef(BaseModel):
@@ -179,7 +180,10 @@ class PageTemplate(_BaseTemplate):
         )
 
 
-class Widgets:
+Assets = TypeVar('Assets')
+
+
+class Widgets[Assets]:
     def __init__(
         self,
         dash_client: DashClient,
@@ -242,13 +246,14 @@ class Widgets:
     def get_pages(self) -> List[PageTemplate]:
         return list(self._pages)
 
-    async def render(self, namespace: str, name: str, columns: list[Any]) -> Dict[str, Any]:
+    async def render(self, assets: Assets, namespace: str, name: str, columns: list[Any]) -> Dict[str, Any]:
         template = self._widgets_map[(namespace, name)]
         actions = template.spec['actions']
 
-        session = st.session_state.get('session', {})
-        if not isinstance(session, dict):
-            raise ValueError('Expected session to be dict')
+        session_name = f'/_page/session/{namespace}/{name}'
+        session = _validate_session(
+            session=st.session_state.get(session_name, {}),
+        )
 
         for action_widget in actions:
             action_name = action_widget['name']
@@ -271,13 +276,19 @@ class Widgets:
                 else:
                     action_new_column = False
 
-            updated_session: Dict[str, Any] = await action_renderer(
-                widgets=self,
-                session=session,
-                name=action_name,
-                spec=action_spec,
+            updated_session = _validate_session(
+                session=await action_renderer(
+                    assets=assets,
+                    session=DataModel(
+                        data=session,
+                    ),
+                    name=action_name,
+                    spec=DataModel(
+                        data=action_spec,
+                    ),
+                ),
             )
-            session[action_name] = st.session_state['session'] = updated_session
+            session[action_name] = st.session_state[session_name] = updated_session
 
             if action_new_column:
                 action_column.__exit__(None, None, None)
@@ -289,3 +300,14 @@ class Widgets:
                 case _:
                     break
         return session
+
+
+def _validate_session(session: Any) -> Dict[str, Any]:
+    if session is None:
+        session = {}
+    if not isinstance(session, dict):
+        raise ValueError(
+            'Expected session to be dict, '
+            f'Found {str(type(session))}',
+        )
+    return session

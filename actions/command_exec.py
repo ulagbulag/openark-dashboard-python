@@ -1,17 +1,16 @@
-import jsonpointer
 import streamlit as st
 
+from assets import Assets
 from dash.data.session import SessionRef
-from utils.types import Session, Spec
-from utils.widgets import Widgets
+from utils.types import DataModel, SessionReturn
 
 
-async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
+async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
     st.divider()
 
-    maybe_sessions = jsonpointer.resolve_pointer(
-        doc=session,
-        pointer=spec['session'],
+    maybe_sessions = session.get_unchecked(
+        keys=spec,
+        path='/session',
     )
     if isinstance(maybe_sessions, dict):
         user_names = [
@@ -24,10 +23,18 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
         ]
     st.text(f'* 노드 수: {len(user_names)}')
 
-    command = jsonpointer.resolve_pointer(session, spec['command'])
-    if not isinstance(command, str):
-        raise ValueError('Command is not a string')
-    st.text('* ' + spec['labelCheck'])
+    command = session.get(
+        keys=spec,
+        path='/command',
+        value_type=str,
+    )
+    st.text(
+        '* ' + spec.get(
+            path='/labelCheck',
+            value_type=str,
+            default='Please make sure you are trying to run the code below!',
+        ),
+    )
     st.code(command)
 
     terminal = st.checkbox(
@@ -44,21 +51,29 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
 
     if not st.button(
         key=f'{name}/submit',
-        label=spec['label'],
+        label=spec.get(
+            path='/label',
+            value_type=str,
+            default='Submit',
+        ),
     ):
         return {
             'state': 'Cancel',
         }
 
     with st.spinner('명령 실행 중...' if wait else '명령 전달 중...'):
-        widgets.dash_client.post_user_exec_broadcast(
+        assets.dash_client.post_user_exec_broadcast(
             command=command,
             terminal=terminal,
             target_user_names=user_names,
             wait=wait,
         )
 
-    st.info(spec.get('labelSuccess', 'Succeeded!'))
+    st.info(spec.get(
+        path='/labelSuccess',
+        value_type=str,
+        default='Succeeded!',
+    ))
 
     return {
         'state': 'Ok',

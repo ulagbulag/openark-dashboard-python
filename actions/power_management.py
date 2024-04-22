@@ -1,36 +1,50 @@
-import jsonpointer
 import streamlit as st
 
-from utils.types import Session, Spec
-from utils.widgets import Widgets
+from assets import Assets
+from utils.types import DataModel, SessionReturn
 
 
-async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
-    # Get metadata
-    key = spec['key']
-    if not isinstance(key, str):
-        raise ValueError('Key is not a string')
+async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+    boxes = session.get(
+        keys=spec,
+        path='/key',
+        value_type=dict,
+    )['items']
 
-    boxes_raw = jsonpointer.resolve_pointer(session, key)
-    if not isinstance(boxes_raw, dict):
-        raise ValueError('Boxes is not a dict')
-
-    boxes = boxes_raw['items']
-
-    st.subheader(f'🏃 {spec.get('labelTitle', 'Command')}')
+    st.subheader(f'🏃 {spec.get(
+        path='/labelTitle',
+        value_type=str,
+        default='Command',
+    )}')
     st.text(f'* 노드 수: {len(boxes)}')
 
     # Show available commands
     commands = {
-        'on': spec.get('labelPowerOn', 'Power ON'),
-        'off': spec.get('labelPowerOff', 'Power OFF'),
-        'reset': spec.get('labelReset', 'Reboot'),
+        'on': spec.get(
+            path='/labelPowerOn',
+            value_type=str,
+            default='Power ON',
+        ),
+        'off': spec.get(
+            path='/labelPowerOff',
+            value_type=str,
+            default='Power OFF',
+        ),
+        'reset': spec.get(
+            path='/labelReset',
+            value_type=str,
+            default='Reboot',
+        ),
     }
 
     # Select the command
     command = st.radio(
         key=f'{name}/command',
-        label=spec.get('label', 'Please choose one of the commands.'),
+        label=spec.get(
+            path='/label',
+            value_type=str,
+            default='Please choose one of the commands.',
+        ),
         options=commands.keys(),
         format_func=lambda key: commands[key],
     )
@@ -38,13 +52,21 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
     # Ask whether to command forcely
     force = st.checkbox(
         key=f'{name}/force',
-        label=spec.get('labelForce', 'Force'),
+        label=spec.get(
+            path='/labelForce',
+            value_type=str,
+            default='Force',
+        ),
     )
 
     # Execute
     execute = st.button(
         key=f'{name}/submit',
-        label=spec.get('labelSubmit', 'Submit'),
+        label=spec.get(
+            path='/labelSubmit',
+            value_type=str,
+            default='Submit',
+        ),
     )
     if not execute:
         return {
@@ -52,7 +74,7 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
         }
 
     with st.spinner('명령 실행 중...'):
-        widgets.actions.apply_kubernetes(
+        assets.widgets.actions.apply_kubernetes(
             name=name,
             namespace='kiss',
             spec=[
@@ -65,7 +87,13 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
             ],
         )
 
-    st.info(spec.get('labelSuccess', 'Succeeded!'))
+    st.info(
+        spec.get(
+            path='/labelSuccess',
+            value_type=str,
+            default='Succeeded!',
+        ),
+    )
 
     return {
         'state': 'Ok',
