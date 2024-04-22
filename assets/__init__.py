@@ -16,6 +16,7 @@ _ASSETS_DIR = os.path.dirname(__file__)
 
 
 class Assets(BaseModel, BaseParser):
+    debug: bool = False
     templates_dir: str = './templates/'
 
     parser: AutoParser = AutoParser()
@@ -34,13 +35,13 @@ class Assets(BaseModel, BaseParser):
 
     @property
     def dash_client(self) -> DashClient:
-        if self._dash_client is None:
+        if self.debug or self._dash_client is None:
             self._dash_client = DashClient()
         return self._dash_client
 
     @property
     def widgets(self) -> Widgets:
-        if self._widgets is None:
+        if self.debug or self._widgets is None:
             self._widgets = Widgets(
                 dash_client=self.dash_client,
                 templates_dir=self.templates_dir,
@@ -60,5 +61,8 @@ class Assets(BaseModel, BaseParser):
 
 
 @st.cache_resource(ttl=None)
-def init_assets() -> Assets:
-    return Assets()
+def init_assets(debug: bool = False) -> Assets:
+    with st.spinner('🔥 Loading Assets...'):
+        return Assets(
+            debug=debug,
+        )

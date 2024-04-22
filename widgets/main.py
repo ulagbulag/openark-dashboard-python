@@ -52,6 +52,10 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
         'GitHub': 'https://github.com/ulagbulag/openark-dashboard-python',
     }
 
+    # Skip appending home page button
+    if 'Home' in pages:
+        del pages['Home']
+
     # Show page header (navigation bar)
     selected_page_name: str = st_navbar(
         key='/_page',
@@ -63,18 +67,26 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
     )
     st.title(selected_page_name)
 
-    selected_page = pages.get(selected_page_name)
+    if selected_page_name == 'Home':
+        selected_page = assets.widgets.get_home_page()
+    else:
+        selected_page = pages.get(selected_page_name)
     if selected_page is None:
         return None
 
     # Show available menus
-    selected_menu = st.selectbox(
-        key='/_page/menu',
-        label='Choose one of the menus',
-        options=selected_page.widgets,
-    )
-    if selected_menu is None:
+    if not selected_page.widgets:
         return None
+    elif len(selected_page.widgets) == 1:
+        selected_menu = selected_page.widgets[0]
+    else:
+        selected_menu = st.selectbox(
+            key='/_page/menu',
+            label='Choose one of the menus',
+            options=selected_page.widgets,
+        )
+        if selected_menu is None:
+            return None
 
     # Configure columns
     main_column, *extra_columns = st.columns(2)

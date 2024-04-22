@@ -1,6 +1,7 @@
 import asyncio
 
 import dotenv
+import os
 import streamlit as st
 from streamlit.errors import StreamlitAPIException
 
@@ -28,7 +29,10 @@ async def main() -> None:
     init_opentelemetry()
 
     # Assets Configuration
-    assets = init_assets()
+    assets = init_assets(
+        debug=os.environ.get('OPENARK_DEBUG', 'true').lower() == 'true' or
+        not os.path.exists('/run/secrets/kubernetes.io/serviceaccount'),
+    )
 
     # Render a Page
     await widgets.main.render(assets)

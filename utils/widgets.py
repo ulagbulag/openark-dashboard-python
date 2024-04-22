@@ -233,6 +233,12 @@ class Widgets:
     def dash_client(self) -> DashClient:
         return self._dash_client
 
+    def get_home_page(
+        self,
+        namespace: Optional[str] = None,
+    ) -> Optional[PageTemplate]:
+        return self._pages_map.get((namespace or 'default', 'home'))
+
     def get_pages(self) -> List[PageTemplate]:
         return list(self._pages)
 
