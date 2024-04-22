@@ -6,12 +6,13 @@ from typing import Dict, List, Optional, override
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from langchain_community.vectorstores.docarray import DocArrayInMemorySearch
 from langchain_core.embeddings import Embeddings
-from langchain_core.language_models.llms import LLM
+from langchain_core.language_models.base import BaseLanguageModel
+from langchain_core.messages.base import BaseMessage
 from langchain_core.output_parsers import BaseTransformOutputParser, StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableSerializable
 from langchain_core.vectorstores import VectorStore
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from pydantic import BaseModel
 
 from kubegraph.data.db.base import NetworkGraphRef
@@ -65,18 +66,10 @@ class OpenAIVectorStoreBuilder(InMemoryVectorStoreBuilder):
 
 
 class RetrievalParser(BaseModel, BaseParser):
-    # llm: LLM = ChatOpenAI(model='gpt-3.5-turbo')
-    # llm: LLM = ChatOpenAI(model='gpt-4-turbo', temperature=0.0)
-    llm: LLM = HuggingFaceEndpoint(
-        endpoint_url=f"http://text-generation/",
-        huggingfacehub_api_token=os.environ['HUGGING_FACE_HUB_TOKEN'],
-        # max_new_tokens=512,
-        temperature=0.1,
-        # top_k=10,
-        # top_p=0.95,
-        # typical_p=0.95,
-        # streaming=True,
-    )  # type: ignore
+    lm: Optional[
+        BaseLanguageModel[BaseMessage]
+        | BaseLanguageModel[str]
+    ] = None
 
     output_parser: BaseTransformOutputParser[str] = StrOutputParser()
 
@@ -100,6 +93,33 @@ class RetrievalParser(BaseModel, BaseParser):
 
     _logger: logging.Logger = logging.getLogger('kubegraph')
 
+    def _load_lm(self) -> BaseLanguageModel[str] | BaseLanguageModel[BaseMessage]:
+        if self.lm is None:
+            try:
+                self.lm = HuggingFaceEndpoint(
+                    endpoint_url=f"http://text-generation/",
+                    huggingfacehub_api_token=os.environ['HUGGING_FACE_HUB_TOKEN'],
+                    # max_new_tokens=512,
+                    temperature=0.1,
+                    # top_k=10,
+                    # top_p=0.95,
+                    # typical_p=0.95,
+                    # streaming=True,
+                )  # type: ignore
+            except ValueError:
+                pass
+        if self.lm is None:
+            try:
+                self.lm = ChatOpenAI(
+                    model='gpt-4-turbo',
+                    temperature=0.0,
+                )
+            except ValueError:
+                pass
+        if self.lm is None:
+            raise ValueError('Failed to initialize LLM')
+        return self.lm
+
     def build_chain(
         self,
         datasets_annotations: Dict[NetworkGraphRef, List[str]],
@@ -114,7 +134,7 @@ class RetrievalParser(BaseModel, BaseParser):
             'question': RunnablePassthrough(),
         })
 
-        return setup_and_retrieval | self.prompt | self.llm | self.output_parser
+        return setup_and_retrieval | self.prompt | self._load_lm() | self.output_parser
 
     @override
     def parse(
