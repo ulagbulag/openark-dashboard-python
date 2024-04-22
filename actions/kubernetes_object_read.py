@@ -3,7 +3,6 @@ from typing import Any
 
 from jsonpointer import resolve_pointer
 import kubernetes as kube
-import streamlit as st
 
 from utils.types import Session, Spec
 from utils.widgets import Widgets
@@ -48,5 +47,5 @@ def _filter_object(pattern: str, object: dict[str, Any]) -> bool:
                 '/metadata/name',
             ]
         )
-        if name
+        if isinstance(name, str) and name
     )

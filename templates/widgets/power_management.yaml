@@ -3,7 +3,8 @@ apiVersion: ark.ulagbulag.io/v1alpha1
 kind: Widget
 metadata:
   name: power_management
-  namespace: desktop_environment
+  labels:
+    dash.ulagbulag.io/page: desktop
 spec:
   actions:
     - name: nodes
@@ -17,8 +18,6 @@ spec:
 
     - name: power_management
       kind: PowerManagement
-      metadata:
-        newColumn: true
       spec:
         key: /nodes
         label: 어떤 맛으로 실행할까요?

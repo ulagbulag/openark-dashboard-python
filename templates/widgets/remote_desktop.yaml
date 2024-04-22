@@ -3,7 +3,8 @@ apiVersion: ark.ulagbulag.io/v1alpha1
 kind: Widget
 metadata:
   name: remote_desktop
-  namespace: desktop_environment
+  labels:
+    dash.ulagbulag.io/page: desktop
 spec:
   actions:
     # - name: node

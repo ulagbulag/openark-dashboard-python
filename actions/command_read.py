@@ -60,6 +60,8 @@ async def _draw_read_chatgpt(name: str, label: str) -> Optional[str]:
 
     with st.spinner('Running `ChatGPT`.'):
         command = _execute_chatgpt(input_context)
+    if command is None:
+        return None
 
     # Varify the response
     PROMPT = '$ '

@@ -1,0 +1,9 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Page
+metadata:
+  name: desktop
+  annotations:
+    dash.ulagbulag.io/priority: "1"
+    # dash.ulagbulag.io/title: Desktop
+spec: {}

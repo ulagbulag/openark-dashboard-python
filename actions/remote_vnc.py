@@ -9,9 +9,15 @@ from utils.widgets import Widgets
 
 async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     # Get metadata
-    session = SessionRef.from_data(
-        jsonpointer.resolve_pointer(session, spec['key']),
-    )
+    key = spec['key']
+    if not isinstance(key, str):
+        raise ValueError('Key is not a string')
+
+    session_ref = jsonpointer.resolve_pointer(session, key)
+    if not isinstance(session_ref, dict):
+        raise ValueError('Session is not a dict')
+
+    session_ref = SessionRef.from_data(session_ref)
 
     # Show available commands
     commands = {
@@ -24,7 +30,7 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
     ):
         with tab:
             draw(
-                session=session,
+                session=session_ref,
             )
 
     return {

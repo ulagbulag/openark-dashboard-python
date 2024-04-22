@@ -7,7 +7,15 @@ from utils.widgets import Widgets
 
 async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     # Get metadata
-    boxes = jsonpointer.resolve_pointer(session, spec['key'])['items']
+    key = spec['key']
+    if not isinstance(key, str):
+        raise ValueError('Key is not a string')
+
+    boxes_raw = jsonpointer.resolve_pointer(session, key)
+    if not isinstance(boxes_raw, dict):
+        raise ValueError('Boxes is not a dict')
+
+    boxes = boxes_raw['items']
 
     st.subheader(f'🏃 {spec.get('labelTitle', 'Command')}')
     st.text(f'* 노드 수: {len(boxes)}')

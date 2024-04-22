@@ -86,7 +86,7 @@ class ValueField:
         return st.text_input(
             label=self.title(),
             value=default,
-        )
+        ) or ''
 
     def _update_one_of_strings(self) -> str | None:
         spec = self._field['oneOfStrings']
@@ -117,20 +117,23 @@ class ValueField:
             label=self.title(),
             value=default,
         )
-        if isinstance(date, tuple):
+        if date is None:
+            return None
+        elif isinstance(date, tuple):
             if len(date) == 0:
                 return None
             elif len(date) == 1:
                 (date,) = date
             elif len(date) == 2:
                 (date, _) = date
-        else:
-            date = date
 
         time = st.time_input(
             label=self.title(),
             value=default,
         )
+        if time is None:
+            return None
+
         return datetime.datetime.combine(date, time).isoformat()
 
     def _update_ip(self) -> str | None:

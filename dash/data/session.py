@@ -10,7 +10,7 @@ class SessionRef:
     ) -> None:
         self.namespace = namespace
         self.node_name = node_name
-        self.user_name = user_name
+        self._user_name = user_name
 
     @classmethod
     def from_aggrid(cls, data: dict[str, str]) -> Self:
@@ -29,6 +29,12 @@ class SessionRef:
         )
 
     @property
+    def user_name(self) -> str:
+        if self._user_name is None:
+            raise ValueError('Empty user name')
+        return self._user_name
+
+    @property
     def novnc_full_url(self) -> str:
         return self._novnc_url(kind='vnc')
 
@@ -39,18 +45,18 @@ class SessionRef:
     def _novnc_url(self, kind: str) -> str:
         return f'https://mobilex.kr/dashboard/vnc/{kind}.html?host=mobilex.kr/user/{self.user_name}/vnc/&scale=true'
 
-    def to_aggrid(self) -> dict[str, str]:
+    def to_aggrid(self) -> dict[str, Optional[str]]:
         return {
             'Name': self.user_name,
             'Namespace': self.namespace,
             'NodeName': self.node_name,
         }
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, Optional[str]]:
         return {
             'namespace': self.namespace,
             'nodeName': self.node_name,
-            'userName': self.user_name,
+            'userName': self._user_name,
         }
 
     def __eq__(self, other: Any) -> bool:

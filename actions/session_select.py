@@ -29,7 +29,8 @@ async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> S
 def _draw_read_filter(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     sessions = widgets.dash_client.get_user_session_list()
 
-    pattern = spec['filter']
+    pattern: str = spec['filter']
+
     session_filtered = [
         session.to_aggrid()
         for session in sessions
@@ -65,12 +66,12 @@ def _draw_read_multiple(widgets: Widgets, session: Session, name: str, spec: Spe
 
 def _draw_read_one(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     sessions = widgets.dash_client.get_user_session_list()
-    session: Optional[SessionRef] = st.selectbox(
+    selected_session: Optional[SessionRef] = st.selectbox(
         label=spec['label'],
         options=sessions,
     )
 
     return {
-        'state': 'Ok' if session is not None else 'Empty',
-        **(session.to_dict() if session is not None else {}),
+        'state': 'Ok' if selected_session is not None else 'Empty',
+        **(selected_session.to_dict() if selected_session is not None else {}),
     }

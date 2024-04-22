@@ -165,4 +165,6 @@ cython_debug/
 /.gitignore
 /Dockerfile*
 /Justfile
+/output*
+/templates/db/
 /**/*.md

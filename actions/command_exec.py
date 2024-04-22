@@ -1,4 +1,3 @@
-from typing import Union
 import jsonpointer
 import streamlit as st
 
@@ -10,20 +9,24 @@ from utils.widgets import Widgets
 async def render(widgets: Widgets, session: Session, name: str, spec: Spec) -> Session:
     st.divider()
 
-    maybe_sessions: Union[dict[str, str], list[dict[str, str]]] = jsonpointer.resolve_pointer(
-        session, spec['session'])
+    maybe_sessions = jsonpointer.resolve_pointer(
+        doc=session,
+        pointer=spec['session'],
+    )
     if isinstance(maybe_sessions, dict):
         user_names = [
             SessionRef.from_data(maybe_sessions).user_name,
         ]
-    else:
+    elif isinstance(maybe_sessions, list):
         user_names = [
             SessionRef.from_aggrid(session).user_name
             for session in maybe_sessions
         ]
     st.text(f'* 노드 수: {len(user_names)}')
 
-    command: str = jsonpointer.resolve_pointer(session, spec['command'])
+    command = jsonpointer.resolve_pointer(session, spec['command'])
+    if not isinstance(command, str):
+        raise ValueError('Command is not a string')
     st.text('* ' + spec['labelCheck'])
     st.code(command)
 

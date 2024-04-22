@@ -4,26 +4,34 @@ import dotenv
 import streamlit as st
 from streamlit.errors import StreamlitAPIException
 
-import widgets.menu
-import widgets.profile
+from assets import Assets, init_assets
+from utils.otel import init_opentelemetry
+import widgets.main
 
 
-async def main():
+async def main() -> None:
     # Environment Variable Configuration
     dotenv.load_dotenv()
 
     # Page Configuration
     try:
-        st.set_page_config(layout='wide')
+        st.set_page_config(
+            initial_sidebar_state='collapsed',
+            layout='wide',
+            page_icon=Assets.load_image('logo.png'),
+            page_title='OpenARK | Dashboard',
+        )
     except StreamlitAPIException:
         pass
 
-    with st.sidebar:
-        widgets.profile.render()
+    # OpenTelemetry Configuration
+    init_opentelemetry()
 
-    col_menu, *cols = st.columns(2, gap='large')
-    with col_menu:
-        session = await widgets.menu.render(cols)
+    # Assets Configuration
+    assets = init_assets()
+
+    # Render a Page
+    await widgets.main.render(assets)
 
 
 if __name__ == '__main__':

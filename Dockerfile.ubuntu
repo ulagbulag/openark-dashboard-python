@@ -3,12 +3,13 @@
 # found in the LICENSE file.
 
 # Configure environment variables
+ARG DEBIAN_IMAGE="docker.io/library/python"
 ARG DEBIAN_VERSION="slim"
 ARG PACKAGE="dash-streamlit"
 ARG PYTHON_VERSION="3.12"
 
 # Be ready for serving
-FROM "docker.io/library/python:${PYTHON_VERSION}-${DEBIAN_VERSION}"
+FROM "${DEBIAN_IMAGE}:${DEBIAN_VERSION}"
 
 # Package Manager Configuration
 ARG DEBIAN_FRONTEND='noninteractive'
