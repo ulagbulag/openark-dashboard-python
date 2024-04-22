@@ -1,0 +1,8 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Page
+metadata:
+  name: storage
+  annotations:
+    dash.ulagbulag.io/priority: "4"
+spec: {}

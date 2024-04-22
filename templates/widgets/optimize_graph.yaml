@@ -1,0 +1,32 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Widget
+metadata:
+  name: optimize_graph
+  labels:
+    dash.ulagbulag.io/page: analyze
+    dash.ulagbulag.io/title: Graph Optimizer
+spec:
+  actions:
+    - name: dataset
+      kind: DatasetRead
+      spec:
+        type: Graph
+
+    - name: dataset_visualize
+      kind: DatasetVisualize
+      spec:
+        dataset: /dataset/value
+
+    - name: optimized_dataset
+      kind: DatasetOptimize
+      metadata:
+        newColumn: true
+      spec: {}
+
+    - name: optimized_dataset_visualize
+      kind: DatasetVisualize
+      metadata:
+        newColumn: true
+      spec:
+        dataset: /optimized_dataset_visualize/value
