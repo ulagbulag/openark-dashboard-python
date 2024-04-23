@@ -1,50 +1,29 @@
-from typing import Any, Hashable
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
-class User:
-    def __init__(self, data: dict[Hashable, Any]) -> None:
-        self.data = data
+class RoleSpec(BaseModel):
+    is_admin: bool = Field(alias='isAdmin', default=False)
+    is_dev: bool = Field(alias='isDev', default=False)
+    is_ops: bool = Field(alias='isOps', default=False)
 
-    @property
-    def box_name(self) -> str | None:
-        return self.data.get('boxName')
 
-    @property
-    def email(self) -> str:
-        return str(self.data['user']['contact']['email'] or '')
+class UserContactSpec(BaseModel):
+    email: Optional[str] = None
+    tel_office: Optional[str] = Field(alias='telOffice', default=None)
+    tel_phone: Optional[str] = Field(alias='telPhone', default=None)
 
-    @property
-    def image(self) -> str:
-        return ''
 
-    @property
-    def name(self) -> str:
-        return str(self.data['userName'] or '')
+class UserSpec(BaseModel):
+    contact: UserContactSpec = UserContactSpec()
+    nickname: str = Field(alias='name', default='')
 
-    @property
-    def namespace(self) -> str:
-        return str(self.data['namespace'] or '')
 
-    @property
-    def nickname(self) -> str:
-        return str(self.data['user']['name'] or '')
+class User(BaseModel):
+    box_name: Optional[str] = Field(alias='boxName', default=None)
+    name: Optional[str] = Field(alias='userName', default=None)
+    namespace: Optional[str] = None
 
-    @property
-    def role_admin(self) -> bool:
-        return bool(self.data['role']['isAdmin'])
-
-    @property
-    def role_dev(self) -> bool:
-        return bool(self.data['role']['isDev'])
-
-    @property
-    def role_ops(self) -> bool:
-        return bool(self.data['role']['isOps'])
-
-    @property
-    def tel_office(self) -> str:
-        return str(self.data['user']['contact']['telOffice'] or '')
-
-    @property
-    def tel_phone(self) -> str:
-        return str(self.data['user']['contact']['telPhone'] or '')
+    role: RoleSpec = RoleSpec()
+    spec: UserSpec = Field(alias='user', default=UserSpec())

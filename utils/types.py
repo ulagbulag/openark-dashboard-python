@@ -4,16 +4,23 @@ import jsonpointer
 from pydantic import BaseModel, Field
 
 
-SessionReturn = Dict[str, Any]
+SessionReturn = Optional[Dict[str, Any]]
 Template = Dict[str, Any]
 Templates = Union[Template, Iterable[Template]]
 
 
+ModelType = TypeVar('ModelType', bound=BaseModel)
 ValueType = TypeVar('ValueType')
 
 
 class DataModel(BaseModel):
     data: Dict[str, Any] = Field(default={}, frozen=True)
+
+    def cast(self, model_type: Type[ModelType]) -> ModelType:
+        return model_type.model_validate(
+            obj=self.data,
+            strict=True,
+        )
 
     def get(
         self,
@@ -49,6 +56,13 @@ class DataModel(BaseModel):
         if value is None:
             return None
         if not isinstance(value, value_type):
+            if (
+                isinstance(value, BaseModel)
+                and issubclass(value_type, BaseModel)
+            ):
+                # Try to convert type
+                return value_type.model_validate(value.model_dump())
+
             raise ValueError(
                 f'Type mismatch on {path!r}: '
                 f'Expected {str(value_type)}, '

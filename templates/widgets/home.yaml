@@ -1,0 +1,11 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Widget
+metadata:
+  name: home
+  labels:
+    dash.ulagbulag.io/page: home
+spec:
+  actions:
+    - name: user
+      kind: AboutMe

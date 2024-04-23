@@ -1,12 +1,13 @@
 from abc import ABCMeta, abstractmethod
 import logging
 import os
-from typing import Any, Dict, List, Optional, Self, Tuple, TypeVar, override
+from typing import Any, Dict, Generic, List, Optional, Self, Tuple, TypeVar, override
 
 import inflection
 import jsonpointer
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import streamlit as st
+from streamlit.delta_generator import DeltaGenerator
 import yaml
 
 from dash.client import DashClient
@@ -14,15 +15,19 @@ from utils.actions import Actions
 from utils.types import DataModel
 
 
+_Assets = TypeVar('_Assets')
+_BaseTemplateSpec = TypeVar('_BaseTemplateSpec')
+
+
 class _TemplateRef(BaseModel):
     namespace: str
     name: str
 
 
-class _BaseTemplate(_TemplateRef, metaclass=ABCMeta):
+class _BaseTemplate(_TemplateRef, Generic[_BaseTemplateSpec], metaclass=ABCMeta):
     title: str
     metadata: Dict[str, Any]
-    spec: Any
+    spec: _BaseTemplateSpec
 
     @classmethod
     @abstractmethod
@@ -36,6 +41,14 @@ class _BaseTemplate(_TemplateRef, metaclass=ABCMeta):
         path: str,
         metadata: Dict[str, Any],
     ) -> Dict[str, Any]:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def _parse_spec(
+        cls,
+        spec: Dict[str, Any],
+    ) -> _BaseTemplateSpec:
         pass
 
     @classmethod
@@ -97,18 +110,26 @@ class _BaseTemplate(_TemplateRef, metaclass=ABCMeta):
             path!r
         } -> {title}'
 
-        spec = jsonpointer.resolve_pointer(raw, '/spec')
         kwargs = cls._parse_metadata(
             path=path,
             metadata=metadata,
         )
+
+        spec = jsonpointer.resolve_pointer(
+            raw,
+            '/spec',
+            default={},
+        )
+        assert isinstance(spec, dict), f'Template spec type mismatch: {
+            path!r
+        } -> {spec}'
 
         return cls(
             namespace=namespace,
             name=name,
             metadata=metadata,
             title=title,
-            spec=spec,
+            spec=cls._parse_spec(spec),
             **kwargs,
         )
 
@@ -117,7 +138,22 @@ class _BaseTemplate(_TemplateRef, metaclass=ABCMeta):
         return self.title
 
 
-class _WidgetTemplate(_BaseTemplate):
+class _ActionMetadataSpec(BaseModel):
+    new_column: bool = Field(alias='newColumn', default=False)
+
+
+class _ActionSpec(BaseModel):
+    name: str
+    kind: str
+    metadata: _ActionMetadataSpec = _ActionMetadataSpec()
+    spec: Dict[str, Any] = {}
+
+
+class _WidgetSpec(BaseModel):
+    actions: List[_ActionSpec] = []
+
+
+class _WidgetTemplate(_BaseTemplate[_WidgetSpec]):
     page: Optional[str] = None
 
     @override
@@ -145,8 +181,22 @@ class _WidgetTemplate(_BaseTemplate):
             page=page,
         )
 
+    @override
+    @classmethod
+    def _parse_spec(
+        cls,
+        spec: Dict[str, Any],
+    ) -> _WidgetSpec:
+        return _WidgetSpec.model_validate(
+            obj=spec,
+        )
 
-class PageTemplate(_BaseTemplate):
+
+class _PageSpec(BaseModel):
+    pass
+
+
+class PageTemplate(_BaseTemplate[_PageSpec]):
     priority: int = 1_000
     widgets: List[_WidgetTemplate] = []
 
@@ -179,11 +229,18 @@ class PageTemplate(_BaseTemplate):
             priority=priority,
         )
 
+    @override
+    @classmethod
+    def _parse_spec(
+        cls,
+        spec: Dict[str, Any],
+    ) -> _PageSpec:
+        return _PageSpec.model_validate(
+            obj=spec,
+        )
 
-Assets = TypeVar('Assets')
 
-
-class Widgets[Assets]:
+class Widgets[_Assets]:
     def __init__(
         self,
         dash_client: DashClient,
@@ -246,22 +303,42 @@ class Widgets[Assets]:
     def get_pages(self) -> List[PageTemplate]:
         return list(self._pages)
 
-    async def render(self, assets: Assets, namespace: str, name: str, columns: list[Any]) -> Dict[str, Any]:
+    async def render(
+        self,
+        assets: _Assets,
+        namespace: str,
+        name: str,
+        columns: List[DeltaGenerator],
+    ) -> Dict[str, Any]:
         template = self._widgets_map[(namespace, name)]
-        actions = template.spec['actions']
+        actions = template.spec.actions
 
         session_name = f'/_page/session/{namespace}/{name}'
         session = _validate_session(
             session=st.session_state.get(session_name, {}),
         )
 
-        for action_widget in actions:
-            action_name = action_widget['name']
-            action_kind = inflection.underscore(action_widget['kind'])
-            action_spec = action_widget.get('spec', {})
+        if columns:
+            column = columns.pop(0)
+        else:
+            column = st.container()
 
-            action_metadata = action_widget.get('metadata', {})
-            action_new_column = action_metadata.get('newColumn', False)
+        for action_index, action_widget in enumerate(actions):
+            action_name = action_widget.name
+            action_kind_name = action_widget.kind
+            action_kind = inflection.underscore(action_kind_name)
+
+            action_is_first = action_index == 0
+            action_metadata = action_widget.metadata
+
+            action_module_path = \
+                f'{os.path.dirname(__file__)}/..' \
+                f'/actions/{action_kind}.py'
+            if not os.path.exists(action_module_path):
+                raise ValueError(
+                    'No such action: '
+                    f'{action_name} -> {action_kind_name}',
+                )
 
             action_module = __import__(
                 name=f'actions.{action_kind}',
@@ -269,29 +346,23 @@ class Widgets[Assets]:
             )
             action_renderer = getattr(action_module, 'render')
 
-            if action_new_column:
-                if columns:
-                    action_column = columns.pop()
-                    action_column.__enter__()
-                else:
-                    action_new_column = False
+            if not action_is_first and action_metadata.new_column and columns:
+                column = columns.pop(0)
 
-            updated_session = _validate_session(
-                session=await action_renderer(
-                    assets=assets,
-                    session=DataModel(
-                        data=session,
+            with column:
+                updated_session = _validate_session(
+                    session=await action_renderer(
+                        assets=assets,
+                        session=DataModel(
+                            data=session,
+                        ),
+                        name=action_name,
+                        spec=DataModel(
+                            data=action_widget.spec,
+                        ),
                     ),
-                    name=action_name,
-                    spec=DataModel(
-                        data=action_spec,
-                    ),
-                ),
-            )
+                )
             session[action_name] = st.session_state[session_name] = updated_session
-
-            if action_new_column:
-                action_column.__exit__(None, None, None)
 
             state = updated_session.get('state', 'none')
             match state:

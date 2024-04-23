@@ -32,7 +32,7 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
             # 'color': 'white',
             'margin': '0 0.125rem',
             'padding': '0.4375rem 0.625rem',
-            'width': '80px',
+            # 'width': '80px',
         },
         'active': {
             'background-color': 'rgba(255, 255, 255, 0.25)',
@@ -58,7 +58,7 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
 
     # Show page header (navigation bar)
     selected_page_name: str = st_navbar(
-        key='/_page',
+        key='main',
         logo_path=logo_path,
         options=options,  # type: ignore
         pages=list(pages.keys()),
@@ -88,14 +88,10 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
         if selected_menu is None:
             return None
 
-    # Configure columns
-    main_column, *extra_columns = st.columns(2)
-
     # Show selected menu
-    with main_column:
-        return await assets.widgets.render(
-            assets=assets,
-            namespace=selected_menu.namespace,
-            name=selected_menu.name,
-            columns=extra_columns,
-        )
+    return await assets.widgets.render(
+        assets=assets,
+        namespace=selected_menu.namespace,
+        name=selected_menu.name,
+        columns=st.columns(2),
+    )

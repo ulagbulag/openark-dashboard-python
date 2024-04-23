@@ -7,7 +7,8 @@ from PIL import Image
 import streamlit as st
 
 from dash.client import DashClient
-from kubegraph.data.db.base import NetworkGraphRef
+from kubegraph.data.db.base import BaseNetworkGraphDB, NetworkGraphRef
+from kubegraph.data.db.local import LocalNetworkGraphDB
 from kubegraph.parser.auto import AutoParser
 from kubegraph.parser.base import BaseParser
 from utils.widgets import Widgets
@@ -22,6 +23,7 @@ class Assets(BaseModel, BaseParser):
     parser: AutoParser = AutoParser()
 
     _dash_client: Optional[DashClient] = None
+    _db: Optional[BaseNetworkGraphDB] = None
     _logger: logging.Logger = logging.getLogger('openark-dashboard')
     _widgets: Optional[Widgets[Self]] = None
 
@@ -38,6 +40,14 @@ class Assets(BaseModel, BaseParser):
         if self.debug or self._dash_client is None:
             self._dash_client = DashClient()
         return self._dash_client
+
+    @property
+    def db(self) -> BaseNetworkGraphDB:
+        if self.debug or self._db is None:
+            self._db = LocalNetworkGraphDB(
+                base_dir=f'{self.templates_dir}/db/',
+            )
+        return self._db
 
     @property
     def widgets(self) -> Widgets[Self]:

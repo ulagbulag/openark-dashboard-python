@@ -307,8 +307,8 @@ class DashClient:
         ]
 
     def get_user(self) -> User:
-        return User(
-            data=self._call_raw(
+        return User.model_validate(
+            obj=self._call_raw(
                 method='GET',
                 path=f'/user/',
             ),

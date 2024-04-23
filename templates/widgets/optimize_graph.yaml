@@ -16,17 +16,16 @@ spec:
     - name: dataset_visualize
       kind: DatasetVisualize
       spec:
-        dataset: /dataset/value
+        key: /dataset/value
 
     - name: optimized_dataset
       kind: DatasetOptimize
       metadata:
         newColumn: true
-      spec: {}
+      spec:
+        key: /dataset/value
 
     - name: optimized_dataset_visualize
       kind: DatasetVisualize
-      metadata:
-        newColumn: true
       spec:
-        dataset: /optimized_dataset_visualize/value
+        key: /optimized_dataset/value

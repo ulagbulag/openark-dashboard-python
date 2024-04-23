@@ -4,6 +4,6 @@ kind: Page
 metadata:
   name: store
   annotations:
-    dash.ulagbulag.io/priority: "6"
+    dash.ulagbulag.io/priority: "7"
     dash.ulagbulag.io/title: Marketplace
 spec: {}
