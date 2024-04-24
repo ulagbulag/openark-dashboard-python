@@ -15,12 +15,14 @@ spec:
 
     - name: session
       kind: SessionSelect
+      metadata:
+        column: All
       spec:
         label: 원격 제어할 노드를 선택해주세요.
 
     - name: show_vnc
       kind: RemoteVnc
       metadata:
-        column: New
+        column: All
       spec:
         key: /session
