@@ -1,0 +1,16 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Widget
+metadata:
+  name: twin
+  labels:
+    dash.ulagbulag.io/page: twin
+spec:
+  actions:
+    - name: nvidia_omniverse
+      kind: RemoteNvidiaOmniverse
+      metadata:
+        column: All
+      spec:
+        baseUrl: http://www.twin.svc/streaming/webrtc-demo/
+        server: webrtc.twin.svc

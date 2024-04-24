@@ -21,6 +21,6 @@ spec:
     - name: show_vnc
       kind: RemoteVnc
       metadata:
-        newColumn: true
+        column: New
       spec:
         key: /session

@@ -2,7 +2,8 @@
 apiVersion: ark.ulagbulag.io/v1alpha1
 kind: Page
 metadata:
-  name: playground
+  name: twin
   annotations:
-    dash.ulagbulag.io/priority: "7"
+    dash.ulagbulag.io/priority: "6"
+    dash.ulagbulag.io/title: Twin
 spec: {}

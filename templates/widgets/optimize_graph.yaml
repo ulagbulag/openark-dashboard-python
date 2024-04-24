@@ -21,7 +21,7 @@ spec:
     - name: optimized_dataset
       kind: DatasetOptimize
       metadata:
-        newColumn: true
+        column: New
       spec:
         key: /dataset/value
 

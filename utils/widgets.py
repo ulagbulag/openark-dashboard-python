@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from enum import Enum
 import logging
 import os
 from typing import Any, Dict, Generic, List, Optional, Self, Tuple, TypeVar, override
@@ -138,8 +139,14 @@ class _BaseTemplate(_TemplateRef, Generic[_BaseTemplateSpec], metaclass=ABCMeta)
         return self.title
 
 
+class _ActionMetadataColumn(str, Enum):
+    All = 'All'
+    Current = 'Current'
+    New = 'New'
+
+
 class _ActionMetadataSpec(BaseModel):
-    new_column: bool = Field(alias='newColumn', default=False)
+    column: _ActionMetadataColumn = _ActionMetadataColumn.Current
 
 
 class _ActionSpec(BaseModel):
@@ -346,10 +353,18 @@ class Widgets[_Assets]:
             )
             action_renderer = getattr(action_module, 'render')
 
-            if not action_is_first and action_metadata.new_column and columns:
-                column = columns.pop(0)
+            match action_metadata.column:
+                case _ActionMetadataColumn.All:
+                    action_column = st.container()
+                case _ActionMetadataColumn.Current:
+                    action_column = column
+                case _ActionMetadataColumn.New:
+                    if not action_is_first and columns:
+                        action_column = column = columns.pop(0)
+                    else:
+                        action_column = column
 
-            with column:
+            with action_column:
                 updated_session = _validate_session(
                     session=await action_renderer(
                         assets=assets,
