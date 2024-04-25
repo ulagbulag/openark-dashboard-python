@@ -1,5 +1,6 @@
-from jsonpointer import resolve_pointer
 from typing import Any, Hashable
+
+from jsonpointer import resolve_pointer
 
 
 class DashObject:

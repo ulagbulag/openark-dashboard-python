@@ -1,0 +1,67 @@
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: NodeGroup
+metadata:
+  name: warehouse-a
+spec:
+  samples:
+    count: 30
+  values:
+    payload:
+      type: Normal
+      mean: 150
+      std: 50
+    warehouse:
+      type: Static
+      value: true
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Node
+metadata:
+  name: warehouse-a
+spec:
+  payload: 300
+  warehouse: true
+---
+apiVersion: ark.ulagbulag.io/v1alpha1
+kind: Node
+metadata:
+  name: warehouse-b
+spec:
+  payload: 0
+  warehouse: true
+# ---
+# apiVersion: ark.ulagbulag.io/v1alpha1
+# kind: Constraint
+# metadata:
+#   name: optimize-warehouse
+# spec:
+#   filters:
+#     - payload >= 100
+#     - payload <= 200
+#     - payload -> send
+#   where:
+#     - payload!
+#     - warehouse
+# ---
+# apiVersion: ark.ulagbulag.io/v1alpha1
+# kind: Function
+# metadata:
+#   name: delivery
+# spec:
+#   handlers:
+#     fake:
+#       data:
+#         input:
+#           filters:
+#             - payload!
+#           provides:
+#             - payload -> send
+#         output:
+#           filters:
+#             - payload!
+#           provides:
+#             - payload -> send
+#       script: |
+#         input.payload -= 3
+#         output.payload += 3

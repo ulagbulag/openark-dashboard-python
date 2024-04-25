@@ -1,5 +1,4 @@
 import logging
-import sys
 
 import colorlog
 from opentelemetry import metrics, trace

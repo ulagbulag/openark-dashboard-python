@@ -1,10 +1,12 @@
 from copy import deepcopy
 import csv
-from data.object import DashObject
 import io
+from typing import Any, Self
+
 from jsonpointer import resolve_pointer, set_pointer
 import pandas as pd
-from typing import Any, Self, Union
+
+from data.object import DashObject
 
 
 class DynamicObject(DashObject):

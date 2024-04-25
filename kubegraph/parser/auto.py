@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, override
+from typing import override
 
 from pydantic import BaseModel
 
@@ -13,9 +13,9 @@ class AutoParser(BaseModel, BaseParser):
     @override
     def parse(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
         question: str,
-    ) -> Optional[List[NetworkGraphRef]]:
+    ) -> list[NetworkGraphRef] | None:
         return self.retrival.parse(
             datasets_annotations=datasets_annotations,
             question=question,

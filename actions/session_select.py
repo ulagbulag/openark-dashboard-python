@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from pandas import DataFrame
 import streamlit as st
@@ -82,7 +81,7 @@ def _draw_read_multiple(assets: Assets, spec: DataModel, label: str) -> SessionR
 
 def _draw_read_one(assets: Assets, spec: DataModel, label: str) -> SessionReturn:
     sessions = assets.dash_client.get_user_session_list()
-    selected_session: Optional[SessionRef] = st.selectbox(
+    selected_session: SessionRef | None = st.selectbox(
         label=label,
         options=sessions,
     )

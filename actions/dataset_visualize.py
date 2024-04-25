@@ -70,7 +70,7 @@ def _draw_action_map_world(name: str, graph: NetworkGraph) -> None:
         )
 
     # Fit to bounds
-    bounds: List[List[float]] = map.get_bounds()  # type: ignore
+    bounds: list[list[float]] = map.get_bounds()  # type: ignore
     map.fit_bounds(bounds)
 
     # Render

@@ -1,35 +1,31 @@
-from typing import Any, Dict, Iterable, Optional, Self, Type, TypeVar, Union
+from typing import Any, Iterable, Self
 
 import jsonpointer
 from pydantic import BaseModel, Field
 
 
-SessionReturn = Optional[Dict[str, Any]]
-Template = Dict[str, Any]
-Templates = Union[Template, Iterable[Template]]
-
-
-ModelType = TypeVar('ModelType', bound=BaseModel)
-ValueType = TypeVar('ValueType')
+SessionReturn = dict[str, Any] | None
+Template = dict[str, Any]
+Templates = Template | Iterable[Template]
 
 
 class DataModel(BaseModel):
-    data: Dict[str, Any] = Field(default={}, frozen=True)
+    data: dict[str, Any] = Field(default={}, frozen=True)
 
-    def cast(self, model_type: Type[ModelType]) -> ModelType:
+    def cast[T: BaseModel](self, model_type: type[T]) -> T:
         return model_type.model_validate(
             obj=self.data,
             strict=True,
         )
 
-    def get(
+    def get[T](
         self,
         path: str,
-        value_type: Type[ValueType],
+        value_type: type[T],
         *,
-        default: Optional[ValueType] = None,
-        keys: Optional[Self] = None,
-    ) -> ValueType:
+        default: T | None = None,
+        keys: Self | None = None,
+    ) -> T:
         value = self.get_optional(
             path=path,
             value_type=value_type,
@@ -40,14 +36,14 @@ class DataModel(BaseModel):
             raise ValueError(f'Empty value: {path!r}')
         return value
 
-    def get_optional(
+    def get_optional[T](
         self,
         path: str,
-        value_type: Type[ValueType],
+        value_type: type[T],
         *,
-        default: Optional[ValueType] = None,
-        keys: Optional[Self] = None,
-    ) -> Optional[ValueType]:
+        default: T | None = None,
+        keys: Self | None = None,
+    ) -> T | None:
         value = self.get_unchecked(
             path=path,
             default=default,
@@ -74,8 +70,8 @@ class DataModel(BaseModel):
         self,
         path: str,
         *,
-        default: Optional[Any] = None,
-        keys: Optional[Self] = None,
+        default: Any | None = None,
+        keys: Self | None = None,
     ) -> Any:
         if keys is None:
             pointer = path
@@ -95,5 +91,5 @@ class DataModel(BaseModel):
         self,
         path: str,
         value: Any,
-    ) -> Optional[Any]:
+    ) -> Any | None:
         self.data[path] = value

@@ -1,12 +1,12 @@
-from typing import Any, Optional, Self
+from typing import Any, Self
 
 
 class SessionRef:
     def __init__(
         self,
-        namespace: Optional[str] = None,
-        node_name: Optional[str] = None,
-        user_name: Optional[str] = None,
+        namespace: str | None = None,
+        node_name: str | None = None,
+        user_name: str | None = None,
     ) -> None:
         self.namespace = namespace
         self.node_name = node_name
@@ -45,14 +45,14 @@ class SessionRef:
     def _novnc_url(self, kind: str) -> str:
         return f'https://mobilex.kr/dashboard/vnc/{kind}.html?host=mobilex.kr/user/{self.user_name}/vnc/&scale=true'
 
-    def to_aggrid(self) -> dict[str, Optional[str]]:
+    def to_aggrid(self) -> dict[str, str | None]:
         return {
             'Name': self.user_name,
             'Namespace': self.namespace,
             'NodeName': self.node_name,
         }
 
-    def to_dict(self) -> dict[str, Optional[str]]:
+    def to_dict(self) -> dict[str, str | None]:
         return {
             'namespace': self.namespace,
             'nodeName': self.node_name,

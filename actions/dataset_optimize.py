@@ -1,4 +1,3 @@
-from typing import Optional
 import streamlit as st
 
 from assets import Assets
@@ -30,12 +29,12 @@ async def render(assets: Assets, session: DataModel, name: str, spec: DataModel)
     }
 
 
-def _draw_optimize_network_flow(name: str, graph: NetworkGraph) -> Optional[OptimalNetworkGraph]:
+def _draw_optimize_network_flow(name: str, graph: NetworkGraph) -> OptimalNetworkGraph | None:
     smcf = OrToolsSolver.with_scalar_network_graph(graph)
     return smcf.solve()
 
 
-def _draw_optimize(name: str, graph: NetworkGraph) -> Optional[OptimalNetworkGraph]:
+def _draw_optimize(name: str, graph: NetworkGraph) -> OptimalNetworkGraph | None:
     # NOTE: Ordered
     actions = {
         'Network Flow': _draw_optimize_network_flow,

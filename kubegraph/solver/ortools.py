@@ -1,4 +1,4 @@
-from typing import Optional, Self, Union, override
+from typing import Self, override
 
 import numpy as np
 from ortools.graph.python import min_cost_flow
@@ -8,7 +8,7 @@ from kubegraph.data.graph import NetworkGraph, OptimalNetworkGraph
 from kubegraph.solver.base import BaseSolver
 
 
-class OrToolsSolver(BaseSolver[OptimalNetworkGraph]):
+class OrToolsSolver(BaseSolver[OptimalNetworkGraph | None]):
     def __init__(
         self,
         graph: NetworkGraph,
@@ -138,7 +138,7 @@ class OrToolsSolver(BaseSolver[OptimalNetworkGraph]):
         )
 
     @override
-    def solve(self) -> Optional[OptimalNetworkGraph]:
+    def solve(self) -> OptimalNetworkGraph | None:
         status = self._solver.solve_max_flow_with_min_cost()
 
         if status != self._solver.OPTIMAL:
@@ -205,7 +205,7 @@ class OrToolsSolver(BaseSolver[OptimalNetworkGraph]):
 def _update_column(
     df: pl.DataFrame,
     key: str,
-    values: Union[np.ndarray, pl.Series],
+    values: np.ndarray | pl.Series,
 ) -> pl.DataFrame:
     if isinstance(values, np.ndarray):
         values = pl.Series(

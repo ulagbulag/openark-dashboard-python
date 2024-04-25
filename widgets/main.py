@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 import streamlit as st
 from streamlit_navigation_bar import st_navbar
 
@@ -6,7 +6,7 @@ from assets import Assets
 from utils.widgets import PageTemplate
 
 
-async def render(assets: Assets) -> Optional[Dict[str, Any]]:
+async def render(assets: Assets) -> dict[str, Any] | None:
     # Configure page header
     logo_path = assets.asset_path('logo.svg')
 
@@ -43,7 +43,7 @@ async def render(assets: Assets) -> Optional[Dict[str, Any]]:
     }
 
     # NOTE: Ordered
-    pages: Dict[str, Optional[PageTemplate]] = {
+    pages: dict[str, PageTemplate | None] = {
         page.title: page
         for page in assets.widgets.get_pages()
     }

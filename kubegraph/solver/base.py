@@ -1,10 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, Self, TypeVar
-
-ResultT = TypeVar('ResultT')
+from typing import Self
 
 
-class BaseSolver(Generic[ResultT], metaclass=ABCMeta):
+class BaseSolver[ResultT](metaclass=ABCMeta):
     def __init__(self) -> None:
         pass
 

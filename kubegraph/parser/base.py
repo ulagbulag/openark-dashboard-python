@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from typing import Dict, List, Optional
 
 from kubegraph.data.db.base import NetworkGraphRef
 
@@ -8,7 +7,7 @@ class BaseParser(metaclass=ABCMeta):
     @abstractmethod
     def parse(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
         question: str,
-    ) -> Optional[List[NetworkGraphRef]]:
+    ) -> list[NetworkGraphRef] | None:
         pass

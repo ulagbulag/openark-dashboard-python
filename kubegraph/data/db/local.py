@@ -1,6 +1,6 @@
 import glob
 import os
-from typing import List, Optional, override
+from typing import override
 
 import polars as pl
 from pydantic import BaseModel
@@ -15,9 +15,9 @@ class LocalNetworkGraphDB(BaseModel, BaseNetworkGraphDB):
     @override
     def list(
         self,
-        kind: Optional[str] = None,
-        namespace: Optional[str] = None,
-    ) -> List[NetworkGraphRef]:
+        kind: str | None = None,
+        namespace: str | None = None,
+    ) -> list[NetworkGraphRef]:
         results = []
         for edge_file in glob.glob(rf'{self.base_dir}/[0-9a-z-]*_[0-9a-z-]*/edges.csv'):
             template_dir = os.path.dirname(edge_file)
@@ -34,7 +34,7 @@ class LocalNetworkGraphDB(BaseModel, BaseNetworkGraphDB):
     def load(
         self,
         kind: str,
-        namespace: Optional[str] = None,
+        namespace: str | None = None,
     ) -> NetworkGraph:
         return NetworkGraph(
             # Define the directed graph for the flow.

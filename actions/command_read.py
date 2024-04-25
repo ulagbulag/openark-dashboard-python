@@ -1,5 +1,3 @@
-from typing import Optional
-
 import httpx
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -47,7 +45,7 @@ async def render(assets: Assets, session: DataModel, name: str, spec: DataModel)
     }
 
 
-def _check_command(command: Optional[str]) -> Optional[str]:
+def _check_command(command: str | None) -> str | None:
     if command is None:
         return None
 
@@ -58,7 +56,7 @@ def _check_command(command: Optional[str]) -> Optional[str]:
     return command
 
 
-async def _draw_read_chatgpt(name: str, label: str) -> Optional[str]:
+async def _draw_read_chatgpt(name: str, label: str) -> str | None:
     input_context = _check_command(st.text_input(
         key=f'{name}.llm',
         label=label,
@@ -87,7 +85,7 @@ async def _draw_read_raw(name: str, label: str) -> str:
 
 
 @st.cache_data
-def _execute_chatgpt(input_context: str) -> Optional[str]:
+def _execute_chatgpt(input_context: str) -> str | None:
     # Create a prompt template
     prompt = ChatPromptTemplate.from_messages([
         (

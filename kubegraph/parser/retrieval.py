@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import logging
 import os
-from typing import Dict, List, Optional, override
+from typing import override
 
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from langchain_community.vectorstores.docarray import DocArrayInMemorySearch
@@ -23,13 +23,13 @@ class BaseVectorStoreBuilder(BaseModel, metaclass=ABCMeta):
     @abstractmethod
     def build(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
     ) -> VectorStore:
         pass
 
 
 class InMemoryVectorStoreBuilder(BaseVectorStoreBuilder, metaclass=ABCMeta):
-    _embedding: Optional[Embeddings] = None
+    _embedding: Embeddings | None = None
 
     def embedding(self) -> Embeddings:
         if self._embedding is None:
@@ -43,7 +43,7 @@ class InMemoryVectorStoreBuilder(BaseVectorStoreBuilder, metaclass=ABCMeta):
     @override
     def build(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
     ) -> VectorStore:
         return DocArrayInMemorySearch.from_texts(
             [
@@ -66,10 +66,7 @@ class OpenAIVectorStoreBuilder(InMemoryVectorStoreBuilder):
 
 
 class RetrievalParser(BaseModel, BaseParser):
-    lm: Optional[
-        BaseLanguageModel[BaseMessage]
-        | BaseLanguageModel[str]
-    ] = None
+    lm: BaseLanguageModel[BaseMessage] | BaseLanguageModel[str] | None = None
 
     output_parser: BaseTransformOutputParser[str] = StrOutputParser()
 
@@ -122,7 +119,7 @@ class RetrievalParser(BaseModel, BaseParser):
 
     def build_chain(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
     ) -> RunnableSerializable[str, str]:
         vectorstore = self.vectorstore.build(
             datasets_annotations=datasets_annotations,
@@ -139,9 +136,9 @@ class RetrievalParser(BaseModel, BaseParser):
     @override
     def parse(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
         question: str,
-    ) -> Optional[List[NetworkGraphRef]]:
+    ) -> list[NetworkGraphRef] | None:
         chain = self.build_chain(datasets_annotations)
         datasets = list(datasets_annotations.keys())
 
@@ -162,7 +159,7 @@ class RetrievalParser(BaseModel, BaseParser):
             if answer_line.startswith(PROMPT):
                 maybe_indices = answer_line.split(PROMPT)[-1]
 
-                indices: List[int] = []
+                indices: list[int] = []
                 for maybe_index in maybe_indices.split(','):
                     maybe_index = maybe_index.strip()
                     if not maybe_index.isnumeric():

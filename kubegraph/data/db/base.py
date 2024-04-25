@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import List, Optional, override
+from typing import override
 
 from pydantic.dataclasses import dataclass
 
@@ -20,15 +20,15 @@ class BaseNetworkGraphDB(metaclass=ABCMeta):
     @abstractmethod
     def list(
         self,
-        kind: Optional[str] = None,
-        namespace: Optional[str] = None,
-    ) -> List[NetworkGraphRef]:
+        kind: str | None = None,
+        namespace: str | None = None,
+    ) -> list[NetworkGraphRef]:
         pass
 
     @abstractmethod
     def load(
         self,
         kind: str,
-        namespace: Optional[str] = None,
+        namespace: str | None = None,
     ) -> NetworkGraph:
         pass

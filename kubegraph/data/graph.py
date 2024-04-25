@@ -4,7 +4,7 @@ import json
 import os
 from pathlib import Path
 from tarfile import TarFile, TarInfo
-from typing import IO, Any, Optional, Self, Union, override
+from typing import IO, Any, Self, override
 import uuid
 
 import graphviz
@@ -107,8 +107,8 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
 
     def draw(
         self,
-        backend: Optional[Union[NetworkGraphDrawBackend, str]] = None,
-        base_dir: Optional[Union[str, Path]] = None,
+        backend: NetworkGraphDrawBackend | str | None = None,
+        base_dir: Path | str | None = None,
         show: bool = True,
     ) -> matplotlib.figure.Figure | pyvis.network.Network:
         if backend is None:
@@ -129,7 +129,7 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
 
     def draw_with_matplotlib(
         self,
-        base_dir: Optional[Union[str, Path]] = None,
+        base_dir: Path | str | None = None,
         show: bool = True,
     ) -> matplotlib.figure.Figure:
         G = self.to_networkx()
@@ -179,7 +179,7 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
 
     def draw_with_pyvis(
         self,
-        base_dir: Optional[Union[str, Path]] = None,
+        base_dir: Path | str | None = None,
         show: bool = True,
     ) -> pyvis.network.Network:
         net = pyvis.network.Network()

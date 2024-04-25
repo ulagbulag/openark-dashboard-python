@@ -1,5 +1,5 @@
 import re
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable
 
 import streamlit as st
 
@@ -136,7 +136,7 @@ async def render(assets: Assets, session: DataModel, name: str, spec: DataModel)
 async def _draw_submit(
     assets: Assets,
     user: User,
-    patch: Dict[str, Any],
+    patch: dict[str, Any],
 ) -> SessionReturn:
     with st.spinner('Applying...'):
         # TODO: to be implemented
@@ -154,10 +154,10 @@ async def _draw_submit(
 def _draw_text_input(
     name: str,
     label: str,
-    default: Optional[str],
+    default: str | None,
     disabled: bool = False,
-    validator: Optional[Callable[[str], Optional[str]]] = None,
-) -> Tuple[bool, bool, Optional[str]]:
+    validator: Callable[[str], str | None] | None = None,
+) -> tuple[bool, bool, str | None]:
     if not default:
         default = None
     value = st.text_input(
@@ -189,7 +189,7 @@ def _draw_text_input(
 _MAX_LENGTH = 32
 
 
-def _validate_text_email(value: str) -> Optional[str]:
+def _validate_text_email(value: str) -> str | None:
     if re.fullmatch(
         string=value,
         pattern=rf'(\w{{3,{_MAX_LENGTH}}})@'
@@ -201,7 +201,7 @@ def _validate_text_email(value: str) -> Optional[str]:
     return None
 
 
-def _validate_text_tel(value: str) -> Optional[str]:
+def _validate_text_tel(value: str) -> str | None:
     if re.fullmatch(
         string=value,
         pattern=r'(\+\d{1,3} )?(\d{1,6}+)(-\d{1,6}+)+',

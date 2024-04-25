@@ -8,9 +8,9 @@ from streamlit.web.server.websocket_headers import _get_websocket_headers
 from dash.data.function import DashFunction
 from dash.data.job import DashJob
 from dash.data.model import DashModel
-from dash.data.resource import ResourceRef
 from dash.data.session import SessionRef
 from dash.data.user import User
+from utils.data import ResourceRef
 
 
 class DashClient:
@@ -228,8 +228,8 @@ class DashClient:
         self, *, namespace: str | None = None,
     ) -> list[ResourceRef]:
         return [
-            ResourceRef(
-                data=data,
+            ResourceRef.model_validate(
+                obj=data,
             )
             for data in self._call_raw(
                 namespace=namespace,
@@ -269,8 +269,8 @@ class DashClient:
         self, *, namespace: str | None = None,
     ) -> list[ResourceRef]:
         return [
-            ResourceRef(
-                data=data,
+            ResourceRef.model_validate(
+                obj=data,
             )
             for data in self._call_raw(
                 namespace=namespace,

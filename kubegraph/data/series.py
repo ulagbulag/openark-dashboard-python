@@ -1,15 +1,13 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, Optional, Self, TypeVar, override
+from typing import Self, override
 
 import polars as pl
 from pydantic import BaseModel
 
 from kubegraph.data.graph import NetworkGraph
 
-SqlResult = TypeVar('SqlResult')
 
-
-class NetworkGraphSeriesMixin(BaseModel, Generic[SqlResult], metaclass=ABCMeta):
+class NetworkGraphSeriesMixin[SqlResult](BaseModel, metaclass=ABCMeta):
     timestamp: str
     step_unit: str
 
@@ -37,7 +35,7 @@ class NetworkGraphSeries(
     NetworkGraph,
     NetworkGraphSeriesMixin[pl.LazyFrame],
 ):
-    _ctx: Optional[pl.SQLContext] = None
+    _ctx: pl.SQLContext | None = None
 
     @override
     def __next__(self) -> Self:

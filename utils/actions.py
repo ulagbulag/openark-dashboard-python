@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 import inflection
 import yaml
 
@@ -25,7 +24,7 @@ class Actions:
         namespace: str,
         name: str,
         spec: Templates,
-    ) -> List[Template]:
+    ) -> list[Template]:
         template = self._env.from_string(self._load(name))
         timestamp = int(datetime.now().timestamp())
 

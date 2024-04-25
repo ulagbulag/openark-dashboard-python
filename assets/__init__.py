@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, List, Optional, Self, override
+from typing import Self, override
 from pydantic import BaseModel
 
 from PIL import Image
@@ -22,10 +22,10 @@ class Assets(BaseModel, BaseParser):
 
     parser: AutoParser = AutoParser()
 
-    _dash_client: Optional[DashClient] = None
-    _db: Optional[BaseNetworkGraphDB] = None
+    _dash_client: DashClient | None = None
+    _db: BaseNetworkGraphDB | None = None
     _logger: logging.Logger = logging.getLogger('openark-dashboard')
-    _widgets: Optional[Widgets[Self]] = None
+    _widgets: Widgets[Self] | None = None
 
     @classmethod
     def asset_path(cls, path: str) -> str:
@@ -61,9 +61,9 @@ class Assets(BaseModel, BaseParser):
     @override
     def parse(
         self,
-        datasets_annotations: Dict[NetworkGraphRef, List[str]],
+        datasets_annotations: dict[NetworkGraphRef, list[str]],
         question: str,
-    ) -> List[NetworkGraphRef] | None:
+    ) -> list[NetworkGraphRef] | None:
         return self.parser.parse(
             datasets_annotations=datasets_annotations,
             question=question,

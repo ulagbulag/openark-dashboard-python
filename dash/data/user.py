@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -10,9 +8,9 @@ class RoleSpec(BaseModel):
 
 
 class UserContactSpec(BaseModel):
-    email: Optional[str] = None
-    tel_office: Optional[str] = Field(alias='telOffice', default=None)
-    tel_phone: Optional[str] = Field(alias='telPhone', default=None)
+    email: str | None = None
+    tel_office: str | None = Field(alias='telOffice', default=None)
+    tel_phone: str | None = Field(alias='telPhone', default=None)
 
 
 class UserSpec(BaseModel):
@@ -21,9 +19,9 @@ class UserSpec(BaseModel):
 
 
 class User(BaseModel):
-    box_name: Optional[str] = Field(alias='boxName', default=None)
-    name: Optional[str] = Field(alias='userName', default=None)
-    namespace: Optional[str] = None
+    box_name: str | None = Field(alias='boxName', default=None)
+    name: str | None = Field(alias='userName', default=None)
+    namespace: str | None = None
 
     role: RoleSpec = RoleSpec()
     spec: UserSpec = Field(alias='user', default=UserSpec())

@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 import streamlit as st
 
 from assets import Assets
@@ -50,7 +48,7 @@ async def _load_dataset(assets: Assets, name: str, spec: DataModel) -> SessionRe
     }
 
 
-async def _load_dataset_from_db(assets: Assets, name: str, spec: DataModel) -> Optional[NetworkGraph]:
+async def _load_dataset_from_db(assets: Assets, name: str, spec: DataModel) -> NetworkGraph | None:
     options = _load_dataset_list_from_db(assets.db)
     if not options:
         return None
@@ -73,7 +71,7 @@ async def _load_dataset_from_db(assets: Assets, name: str, spec: DataModel) -> O
 def _load_dataset_from_db_unattended(
     _db: BaseNetworkGraphDB,
     dataset: NetworkGraphRef,
-) -> Optional[NetworkGraph]:
+) -> NetworkGraph | None:
     return _db.load(
         kind=dataset.kind,
         namespace=dataset.namespace,
@@ -81,12 +79,12 @@ def _load_dataset_from_db_unattended(
 
 
 # @st.cache_data(ttl=60)
-def _load_dataset_list_from_db(_db: BaseNetworkGraphDB, /) -> List[NetworkGraphRef]:
+def _load_dataset_list_from_db(_db: BaseNetworkGraphDB, /) -> list[NetworkGraphRef]:
     with st.spinner('🔥 Loading Datasets ...'):
         return _db.list()
 
 
-async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) -> Optional[NetworkGraph]:
+async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) -> NetworkGraph | None:
     question = st.text_input(
         key=f'{name}/prompt',
         label='Please search here :)',
@@ -97,7 +95,7 @@ async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) 
         return None
 
     # @st.cache_data
-    def _load(_assets: Assets, question: str) -> Optional[NetworkGraphRef]:
+    def _load(_assets: Assets, question: str) -> NetworkGraphRef | None:
         datasets = _load_dataset_list_from_db(_assets.db)
         datasets_annotations = {
             option: [
@@ -144,7 +142,7 @@ async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) 
     )
 
 
-async def _load_dataset_from_upload(assets: Assets, name: str, spec: DataModel) -> Optional[NetworkGraph]:
+async def _load_dataset_from_upload(assets: Assets, name: str, spec: DataModel) -> NetworkGraph | None:
     uploaded_file = st.file_uploader(
         key=f'{name}/upload',
         label='Please upload a graph file',
