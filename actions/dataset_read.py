@@ -6,7 +6,12 @@ from kubegraph.data.graph import NetworkGraph
 from utils.types import DataModel, SessionReturn
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     dataset_type = spec.get(
         path='/type',
         value_type=str,
@@ -22,7 +27,11 @@ async def render(assets: Assets, session: DataModel, name: str, spec: DataModel)
             raise ValueError(f'Unsupported dataset type: {dataset_type}')
 
 
-async def _load_dataset(assets: Assets, name: str, spec: DataModel) -> SessionReturn:
+async def _load_dataset(
+    assets: Assets,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     # NOTE: Ordered
     sources = {
         'Search': _load_dataset_from_search,
@@ -48,7 +57,11 @@ async def _load_dataset(assets: Assets, name: str, spec: DataModel) -> SessionRe
     }
 
 
-async def _load_dataset_from_db(assets: Assets, name: str, spec: DataModel) -> NetworkGraph | None:
+async def _load_dataset_from_db(
+    assets: Assets,
+    name: str,
+    spec: DataModel,
+) -> NetworkGraph | None:
     options = _load_dataset_list_from_db(assets.db)
     if not options:
         return None
@@ -79,12 +92,19 @@ def _load_dataset_from_db_unattended(
 
 
 # @st.cache_data(ttl=60)
-def _load_dataset_list_from_db(_db: BaseNetworkGraphDB, /) -> list[NetworkGraphRef]:
+def _load_dataset_list_from_db(
+    _db: BaseNetworkGraphDB,
+    /,
+) -> list[NetworkGraphRef]:
     with st.spinner('🔥 Loading Datasets ...'):
         return _db.list()
 
 
-async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) -> NetworkGraph | None:
+async def _load_dataset_from_search(
+    assets: Assets,
+    name: str,
+    spec: DataModel,
+) -> NetworkGraph | None:
     question = st.text_input(
         key=f'{name}/prompt',
         label='Please search here :)',
@@ -116,7 +136,8 @@ async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) 
             st.warning('🤖 You have no proper datasets :(')
             return None
 
-        # TODO: implement multiple dataset selection (deep dataset aggregation) support
+        # TODO: implement multiple dataset selection support
+        # Deep Dataset Aggregation
         return selected_datasets[0]
 
     with st.spinner('🔥 Analyzing...'):
@@ -142,7 +163,11 @@ async def _load_dataset_from_search(assets: Assets, name: str, spec: DataModel) 
     )
 
 
-async def _load_dataset_from_upload(assets: Assets, name: str, spec: DataModel) -> NetworkGraph | None:
+async def _load_dataset_from_upload(
+    assets: Assets,
+    name: str,
+    spec: DataModel,
+) -> NetworkGraph | None:
     uploaded_file = st.file_uploader(
         key=f'{name}/upload',
         label='Please upload a graph file',

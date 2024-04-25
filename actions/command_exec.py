@@ -5,7 +5,12 @@ from dash.data.session import SessionRef
 from utils.types import DataModel, SessionReturn
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     st.divider()
 
     maybe_sessions = session.get_unchecked(

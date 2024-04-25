@@ -5,9 +5,15 @@ import streamlit.components.v1 as components
 
 from assets import Assets
 from utils.types import DataModel, SessionReturn
+from widgets.link import draw_new_tab
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     # Get metadata
     base_url = spec.get(
         path='/baseUrl',
@@ -53,7 +59,6 @@ def _draw_page_show(*, url: str) -> None:
 
 def _draw_page_open(*, url: str) -> None:
     # Action
-    st.markdown(
-        body=f'<a href="{url}" style="display: inline-block; padding: 12px 20px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none; font-size: 16px; border-radius: 4px;">Open link in a new Tab</a>',
-        unsafe_allow_html=True,
+    draw_new_tab(
+        url=url,
     )

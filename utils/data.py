@@ -54,7 +54,8 @@ class BaseTemplate[BaseSpec](BaseModel, metaclass=ABCMeta):
             return spec_type.model_validate(
                 obj=spec,
             )  # type: ignore
-        elif isinstance(spec_type, GenericAlias) and issubclass(spec_type.__origin__, dict):
+        elif isinstance(spec_type, GenericAlias) \
+                and issubclass(spec_type.__origin__, dict):
             return spec  # type: ignore
         else:
             raise ValueError('Spec type should be dict')
@@ -80,56 +81,47 @@ class BaseTemplate[BaseSpec](BaseModel, metaclass=ABCMeta):
         path: str = '__input__',
     ) -> Self:
         api_version = jsonpointer.resolve_pointer(obj, '/apiVersion')
-        assert isinstance(api_version, str), f'Template API version type mismatch: {
-            path!r
-        } -> {api_version}'
-        assert api_version == 'ark.ulagbulag.io/v1alpha1', f'Unknown API version: {
-            path!r
-        }'
+        assert isinstance(api_version, str), \
+            f'Template API version type mismatch: {path!r} -> {api_version}'
+        assert api_version == 'ark.ulagbulag.io/v1alpha1', \
+            f'Unknown API version: {path!r}'
 
         kind = jsonpointer.resolve_pointer(obj, '/kind')
-        assert isinstance(kind, str), f'Template kind type mismatch: {
-            path!r
-        } -> {kind}'
-        assert kind == cls._expected_kind(), f'Unknown API Kind: {
-            path!r
-        } -> {kind}'
+        assert isinstance(kind, str), \
+            f'Template kind type mismatch: {path!r} -> {kind}'
+        assert kind == cls._expected_kind(), \
+            f'Unknown API Kind: {path!r} -> {kind}'
 
         name = jsonpointer.resolve_pointer(obj, '/metadata/name')
-        assert isinstance(name, str), f'Template name type mismatch: {
-            path!r
-        } -> {name}'
+        assert isinstance(name, str), \
+            f'Template name type mismatch: {path!r} -> {name}'
         if filename is not None:
-            assert name == filename, f'Template name mismatch: {
-                path!r
-            } -> {name}'
+            assert name == filename, \
+                f'Template name mismatch: {path!r} -> {name}'
 
         namespace = jsonpointer.resolve_pointer(
             obj,
             '/metadata/namespace',
             default='default',
         )
-        assert isinstance(namespace, str), f'Template namespace type mismatch: {
-            path!r
-        } -> {namespace}'
+        assert isinstance(namespace, str), \
+            f'Template namespace type mismatch: {path!r} -> {namespace}'
 
         metadata = jsonpointer.resolve_pointer(
             obj,
             '/metadata',
             default={},
         )
-        assert isinstance(metadata, dict), f'Template metadata type mismatch: {
-            path!r
-        }'
+        assert isinstance(metadata, dict), \
+            f'Template metadata type mismatch: {path!r}'
 
         title = jsonpointer.resolve_pointer(
             metadata,
             '/annotations/dash.ulagbulag.io~1title',
             default=inflection.titleize(name),
         )
-        assert isinstance(title, str), f'Template title type mismatch: {
-            path!r
-        } -> {title}'
+        assert isinstance(title, str), \
+            f'Template title type mismatch: {path!r} -> {title}'
 
         kwargs = cls._parse_metadata(
             path=path,
@@ -141,9 +133,8 @@ class BaseTemplate[BaseSpec](BaseModel, metaclass=ABCMeta):
             '/spec',
             default={},
         )
-        assert isinstance(spec, dict), f'Template spec type mismatch: {
-            path!r
-        } -> {spec}'
+        assert isinstance(spec, dict), \
+            f'Template spec type mismatch: {path!r} -> {spec}'
 
         return cls(
             apiVersion=api_version,

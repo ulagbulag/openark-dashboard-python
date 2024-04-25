@@ -8,15 +8,21 @@ from langchain_community.vectorstores.docarray import DocArrayInMemorySearch
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_core.messages.base import BaseMessage
-from langchain_core.output_parsers import BaseTransformOutputParser, StrOutputParser
+from langchain_core.output_parsers import (
+    BaseTransformOutputParser, StrOutputParser,
+)
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableSerializable
+from langchain_core.runnables import (
+    RunnableParallel, RunnablePassthrough, RunnableSerializable,
+)
 from langchain_core.vectorstores import VectorStore
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from pydantic import BaseModel
 
 from kubegraph.data.db.base import NetworkGraphRef
 from kubegraph.parser.base import BaseParser
+
+BaseLanguageModels = BaseLanguageModel[str] | BaseLanguageModel[BaseMessage]
 
 
 class BaseVectorStoreBuilder(BaseModel, metaclass=ABCMeta):
@@ -83,19 +89,21 @@ class RetrievalParser(BaseModel, BaseParser):
         4. If no dataset is matched: Print only "Answer: Not Found".
 
         Question: {question}
-        ''',
+        ''',  # noqa: E501
     )
 
     vectorstore: BaseVectorStoreBuilder = OpenAIVectorStoreBuilder()
 
     _logger: logging.Logger = logging.getLogger('kubegraph')
 
-    def _load_lm(self) -> BaseLanguageModel[str] | BaseLanguageModel[BaseMessage]:
+    def _load_lm(self) -> BaseLanguageModels:
         if self.lm is None:
             try:
                 self.lm = HuggingFaceEndpoint(
-                    endpoint_url=f"http://text-generation/",
-                    huggingfacehub_api_token=os.environ['HUGGING_FACE_HUB_TOKEN'],
+                    endpoint_url='http://text-generation/',
+                    huggingfacehub_api_token=os.environ[
+                        'HUGGING_FACE_HUB_TOKEN'
+                    ],
                     # max_new_tokens=512,
                     temperature=0.1,
                     # top_k=10,
@@ -131,7 +139,10 @@ class RetrievalParser(BaseModel, BaseParser):
             'question': RunnablePassthrough(),
         })
 
-        return setup_and_retrieval | self.prompt | self._load_lm() | self.output_parser
+        return setup_and_retrieval \
+            | self.prompt \
+            | self._load_lm() \
+            | self.output_parser
 
     @override
     def parse(

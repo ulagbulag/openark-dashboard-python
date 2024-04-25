@@ -8,7 +8,12 @@ from dash.data.user import User
 from utils.types import DataModel, SessionReturn
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     user = assets.dash_client.get_user()
 
     is_valid = True

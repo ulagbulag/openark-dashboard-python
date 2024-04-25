@@ -96,7 +96,7 @@ class ValueField:
         if default is not None:
             try:
                 index = choices.index(default)
-            except:
+            except ValueError:
                 index = 0
         else:
             index = 0
@@ -190,7 +190,7 @@ class ValueField:
         if default is not None:
             try:
                 index = model_names.index(default)
-            except:
+            except ValueError:
                 index = 0
         else:
             index = 0

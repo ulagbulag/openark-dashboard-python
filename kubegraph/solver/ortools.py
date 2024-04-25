@@ -20,7 +20,10 @@ class OrToolsSolver(BaseSolver[OptimalNetworkGraph | None]):
 
     @override
     @classmethod
-    def with_scalar_network_graph(cls, graph: NetworkGraph) -> Self:
+    def with_scalar_network_graph(  # noqa: C901
+        cls,
+        graph: NetworkGraph,
+    ) -> Self:
         solver = min_cost_flow.SimpleMinCostFlow()
 
         # Simulate node supplies

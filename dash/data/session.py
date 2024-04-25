@@ -43,7 +43,10 @@ class SessionRef:
         return self._novnc_url(kind='vnc_lite')
 
     def _novnc_url(self, kind: str) -> str:
-        return f'https://mobilex.kr/dashboard/vnc/{kind}.html?host=mobilex.kr/user/{self.user_name}/vnc/&scale=true'
+        base_host = 'mobilex.kr'
+        base_url = f'https://{base_host}/dashboard/vnc'
+        vnc_host = f'{base_host}/user/{self.user_name}/vnc/&scale=true'
+        return f'{base_url}/{kind}.html?host={vnc_host}'
 
     def to_aggrid(self) -> dict[str, str | None]:
         return {

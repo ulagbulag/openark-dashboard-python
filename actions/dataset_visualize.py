@@ -7,7 +7,12 @@ from kubegraph.data.graph import NetworkGraph
 from utils.types import DataModel, SessionReturn
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     graph = session.get(
         keys=spec,
         path='/key',
@@ -60,7 +65,11 @@ def _draw_action_map_world(name: str, graph: NetworkGraph) -> None:
     )
 
     # Add nodes
-    for name, *location in graph.nodes.rows_by_key(('name', 'latitude', 'longitude')):
+    for name, *location in graph.nodes.rows_by_key((
+        'name',
+        'latitude',
+        'longitude',
+    )):
         map.add_child(
             folium.Marker(
                 location,

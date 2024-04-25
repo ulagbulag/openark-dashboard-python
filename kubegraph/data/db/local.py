@@ -18,8 +18,10 @@ class LocalNetworkGraphDB(BaseModel, BaseNetworkGraphDB):
         kind: str | None = None,
         namespace: str | None = None,
     ) -> list[NetworkGraphRef]:
+        edges_filter = rf'{self.base_dir}/[0-9a-z-]*_[0-9a-z-]*/edges.csv'
+
         results = []
-        for edge_file in glob.glob(rf'{self.base_dir}/[0-9a-z-]*_[0-9a-z-]*/edges.csv'):
+        for edge_file in glob.glob(edges_filter):
             template_dir = os.path.dirname(edge_file)
             node_file = f'{template_dir}/nodes.csv'
             if os.path.exists(node_file):

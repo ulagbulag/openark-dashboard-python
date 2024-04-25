@@ -8,7 +8,12 @@ from assets import Assets
 from utils.types import DataModel, SessionReturn
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     # Parse type
     type_ = spec.get(
         path='/type',
@@ -86,11 +91,25 @@ async def _draw_read_raw(name: str, label: str) -> str:
 
 @st.cache_data
 def _execute_chatgpt(input_context: str) -> str | None:
+    params = {
+        'analyze': 'false',
+        'desktop-environment': 'xfce4',
+        'missing-variables': 'force-fill-default',
+        'os': 'linux',
+        'permanent': 'false',
+        'type': 'one-line shell command',
+        'write-with-prompt': '$',
+    }
+    params_prompt = ', '.join((
+        f'{key}={value}'
+        for key, value in params.items()
+    ))
+
     # Create a prompt template
     prompt = ChatPromptTemplate.from_messages([
         (
             'user',
-            '[analyze: false, desktop-environment: xfce4, missing-variables: force-fill-default, os: linux, permanent: false, type: one-line shell command, write-with-prompt: $] {input_context}',
+            f'[{params_prompt}] {{input_context}}',
         ),
     ])
     chain = prompt

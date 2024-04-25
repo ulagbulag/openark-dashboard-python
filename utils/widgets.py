@@ -58,9 +58,8 @@ class _WidgetTemplate(BaseTemplate[_WidgetSpec]):
             '/labels/dash.ulagbulag.io~1page',
             default=None,
         )
-        assert page is None or isinstance(page, str), f'Template page type mismatch: {
-            path!r
-        } -> {page}'
+        assert page is None or isinstance(page, str), \
+            f'Template page type mismatch: {path!r} -> {page}'
 
         return dict(
             page=page,
@@ -94,12 +93,10 @@ class PageTemplate(BaseTemplate[_PageSpec]):
             '/annotations/dash.ulagbulag.io~1priority',
             default=1_000,
         )
-        assert isinstance(priority_raw, str), f'Template page priority type mismatch: {
-            path!r
-        } -> {priority_raw}'
-        assert priority_raw.isdigit(), f'Template page priority mismatch: {
-            path!r
-        } -> {priority_raw}'
+        assert isinstance(priority_raw, str), \
+            f'Template page priority type mismatch: {path!r} -> {priority_raw}'
+        assert priority_raw.isdigit(), \
+            f'Template page priority mismatch: {path!r} -> {priority_raw}'
         priority = int(priority_raw)
 
         return dict(
@@ -237,7 +234,9 @@ class Widgets[_Assets]:
                         ),
                     ),
                 )
-            session[action_name] = st.session_state[session_name] = updated_session
+            session[action_name] \
+                = st.session_state[session_name] \
+                = updated_session
 
             state = updated_session.get('state', 'none')
             match state:

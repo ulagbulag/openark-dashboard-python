@@ -3,11 +3,7 @@ import logging
 import colorlog
 from opentelemetry import metrics, trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import (
-    OTLPLogExporter,
-)
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (
@@ -19,9 +15,9 @@ import streamlit as st
 
 @st.cache_resource(ttl=None)
 def init_opentelemetry() -> None:
-    exporter = OTLPLogExporter(
-        insecure=True,
-    )
+    # exporter = OTLPLogExporter(
+    #     insecure=True,
+    # )
 
     # Init logger provider
     logger_provider = LoggerProvider()

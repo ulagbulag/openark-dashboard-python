@@ -31,7 +31,7 @@ class DashClient:
     def __reduce__(self):
         return ()
 
-    def _call_raw(
+    def _call_raw(  # noqa: C901
         self, *, namespace: str | None = None,
         method: str, path: str, value: Any = None,
         ok: bool = False,
@@ -154,7 +154,7 @@ class DashClient:
             for data in self._call_raw(
                 namespace=namespace,
                 method='GET',
-                path=f'/job/',
+                path='/job/',
             )
         ]
 
@@ -195,7 +195,7 @@ class DashClient:
             )
             for data in self._call_raw(
                 method='POST',
-                path=f'/batch/job/',
+                path='/batch/job/',
                 value=payload,
             )
         ]
@@ -234,7 +234,7 @@ class DashClient:
             for data in self._call_raw(
                 namespace=namespace,
                 method='GET',
-                path=f'/task/',
+                path='/task/',
             )
         ]
 
@@ -275,7 +275,7 @@ class DashClient:
             for data in self._call_raw(
                 namespace=namespace,
                 method='GET',
-                path=f'/model/',
+                path='/model/',
             )
         ]
 
@@ -310,7 +310,7 @@ class DashClient:
         return User.model_validate(
             obj=self._call_raw(
                 method='GET',
-                path=f'/user/',
+                path='/user/',
             ),
         )
 
@@ -321,7 +321,7 @@ class DashClient:
             )
             for data in self._call_raw(
                 method='GET',
-                path=f'/batch/user/session/',
+                path='/batch/user/session/',
             )
         ]
 
@@ -333,7 +333,7 @@ class DashClient:
         return self._call_raw(
             namespace=namespace,
             method='POST',
-            path=f'/user/desktop/exec/',
+            path='/user/desktop/exec/',
             value=_parse_command(
                 raw=command,
                 terminal=terminal,
@@ -348,7 +348,7 @@ class DashClient:
     ) -> None:
         return self._call_raw(
             method='POST',
-            path=f'/batch/user/desktop/exec/broadcast/',
+            path='/batch/user/desktop/exec/broadcast/',
             value=None if target_user_names is None else {
                 'command': _parse_command(
                     raw=command,
@@ -364,10 +364,14 @@ def _handle_error(path: str, response: requests.Response) -> Never:
     match response.status_code:
         case 403:
             raise Exception(
-                f'Failed to execute {path!r}: Permission Denied')
+                f'Failed to execute {path!r}: '
+                'Permission Denied'
+            )
         case _:
             raise Exception(
-                f'Failed to execute {path!r}: status code [{response.status_code}]')
+                f'Failed to execute {path!r}: '
+                'status code [{response.status_code}]'
+            )
 
 
 def _parse_command(raw: str, terminal: bool) -> list[str]:

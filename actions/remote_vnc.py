@@ -4,9 +4,15 @@ import streamlit.components.v1 as components
 from assets import Assets
 from dash.data.session import SessionRef
 from utils.types import DataModel, SessionReturn
+from widgets.link import draw_new_tab
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     # Get metadata
     session_ref = SessionRef.from_data(session.get(
         keys=spec,
@@ -47,7 +53,6 @@ def _draw_page_open(
     *, session: SessionRef,
 ) -> None:
     # Action
-    st.markdown(
-        body=f'<a href="{session.novnc_full_url}" style="display: inline-block; padding: 12px 20px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none; font-size: 16px; border-radius: 4px;">Open link in a new Tab</a>',
-        unsafe_allow_html=True,
+    draw_new_tab(
+        url=session.novnc_full_url,
     )

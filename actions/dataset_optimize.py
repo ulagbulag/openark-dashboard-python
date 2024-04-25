@@ -6,7 +6,12 @@ from kubegraph.solver.ortools import OrToolsSolver
 from utils.types import DataModel, SessionReturn
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     graph = session.get(
         keys=spec,
         path='/key',
@@ -29,12 +34,18 @@ async def render(assets: Assets, session: DataModel, name: str, spec: DataModel)
     }
 
 
-def _draw_optimize_network_flow(name: str, graph: NetworkGraph) -> OptimalNetworkGraph | None:
+def _draw_optimize_network_flow(
+    name: str,
+    graph: NetworkGraph,
+) -> OptimalNetworkGraph | None:
     smcf = OrToolsSolver.with_scalar_network_graph(graph)
     return smcf.solve()
 
 
-def _draw_optimize(name: str, graph: NetworkGraph) -> OptimalNetworkGraph | None:
+def _draw_optimize(
+    name: str,
+    graph: NetworkGraph,
+) -> OptimalNetworkGraph | None:
     # NOTE: Ordered
     actions = {
         'Network Flow': _draw_optimize_network_flow,

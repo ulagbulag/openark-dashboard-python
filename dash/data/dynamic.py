@@ -51,7 +51,8 @@ class DynamicObject(DashObject):
 
     def to_record(self, default: Any = None) -> dict[str, Any]:
         return {
-            field['name'][1:-1].replace('/', '_'): self._values.get(field['name'], default)
+            field['name'][1:-1].replace('/', '_'):
+                self._values.get(field['name'], default)
             for field in self._fields
         }
 

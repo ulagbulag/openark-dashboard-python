@@ -103,7 +103,8 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
         return buffer
 
     def is_geolocational(self) -> bool:
-        return 'latitude' in self.nodes.columns and 'longitude' in self.nodes.columns
+        return 'latitude' in self.nodes.columns \
+            and 'longitude' in self.nodes.columns
 
     def draw(
         self,
@@ -121,11 +122,16 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
 
         match backend:
             case NetworkGraphDrawBackend.Matplotlib:
-                return self.draw_with_matplotlib(base_dir=base_dir, show=show)
+                drawer = self.draw_with_matplotlib
             case NetworkGraphDrawBackend.Pyvis:
-                return self.draw_with_pyvis(base_dir=base_dir, show=show)
+                drawer = self.draw_with_pyvis
             case _:
                 raise Exception(f'Unknown backend type: {backend}')
+
+        return drawer(
+            base_dir=base_dir,
+            show=show,
+        )
 
     def draw_with_matplotlib(
         self,
@@ -134,27 +140,52 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
     ) -> matplotlib.figure.Figure:
         G = self.to_networkx()
 
-        elarge = [(u, v)
-                  for (u, v, d) in G.edges(data=True) if d['weight'] >= 1 and u != '__START__' and v != '__START__']
-        esmall = [(u, v)
-                  for (u, v, d) in G.edges(data=True) if d['weight'] < 1 and u != '__START__' and v != '__START__']
+        elarge = [
+            (u, v)
+            for (u, v, d) in G.edges(data=True)
+            if d['weight'] >= 1
+            and u != '__START__' and v != '__START__'
+        ]
+        esmall = [
+            (u, v)
+            for (u, v, d) in G.edges(data=True)
+            if d['weight'] < 1
+            and u != '__START__' and v != '__START__'
+        ]
 
         # positions for all nodes - seed for reproducibility
         pos = nx.circular_layout(G)
 
         # nodes
-        nx.draw_networkx_nodes(G, pos, nodelist=[n for n in G.nodes(
-        ) if n != '__START__'], node_size=700)
+        nx.draw_networkx_nodes(
+            G=G, pos=pos,
+            nodelist=[
+                n for n in G.nodes()
+                if n != '__START__'
+            ],
+            node_size=700,
+        )
 
         # edges
-        nx.draw_networkx_edges(G, pos, edgelist=elarge,
-                               width=6, arrows=True, arrowsize=20, arrowstyle='->',)
         nx.draw_networkx_edges(
-            G, pos, edgelist=esmall, width=6, alpha=0.5, edge_color='b', style='dashed', arrows=True, arrowsize=20, arrowstyle='->',
+            G=G, pos=pos,
+            edgelist=elarge,
+            arrows=True, arrowsize=20, arrowstyle='->',
+            width=6,
+        )
+        nx.draw_networkx_edges(
+            G=G, pos=pos,
+            edgelist=esmall,
+            arrows=True, arrowsize=20, arrowstyle='->',
+            alpha=0.5, width=6,
+            edge_color='b', style='dashed',
         )
 
         # node labels
-        nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
+        nx.draw_networkx_labels(
+            G=G, pos=pos,
+            font_size=20, font_family='sans-serif',
+        )
         # edge weight labels
         edge_labels = nx.get_edge_attributes(G, 'weight')
         nx.draw_networkx_edge_labels(G, pos, edge_labels)
@@ -243,7 +274,8 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
             )
 
         # Add nodes
-        has_traffic = 'loss' in self.nodes.columns and 'gain' in self.nodes.columns
+        has_traffic = 'loss' in self.nodes.columns \
+            and 'gain' in self.nodes.columns
         for name, traffic, *io in self.nodes.rows_by_key((
             'name',
             'traffic',
@@ -263,8 +295,9 @@ class NetworkGraph(BaseModel, arbitrary_types_allowed=True):
 
             net.node(
                 name=name,
-                label=f'{name} <-{loss}/+{gain}={gain -
-                                                 loss}>' if has_traffic else name,
+                label=f'{name} <-{loss}/+{gain}={gain - loss}>'
+                if has_traffic
+                else name,
                 # attributes
                 color=(
                     'red' if loss < gain else 'blue'

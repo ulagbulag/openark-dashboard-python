@@ -9,7 +9,12 @@ from utils.types import DataModel, SessionReturn
 from widgets import selector
 
 
-async def render(assets: Assets, session: DataModel, name: str, spec: DataModel) -> SessionReturn:
+async def render(
+    assets: Assets,
+    session: DataModel,
+    name: str,
+    spec: DataModel,
+) -> SessionReturn:
     filter = spec.get_optional(
         path='/filter',
         value_type=str,
@@ -61,7 +66,11 @@ def _draw_read_filter(assets: Assets, pattern: str) -> SessionReturn:
     }
 
 
-def _draw_read_multiple(assets: Assets, spec: DataModel, label: str) -> SessionReturn:
+def _draw_read_multiple(
+    assets: Assets,
+    spec: DataModel,
+    label: str,
+) -> SessionReturn:
     st.subheader(label)
 
     sessions = DataFrame(
@@ -79,7 +88,11 @@ def _draw_read_multiple(assets: Assets, spec: DataModel, label: str) -> SessionR
     }
 
 
-def _draw_read_one(assets: Assets, spec: DataModel, label: str) -> SessionReturn:
+def _draw_read_one(
+    assets: Assets,
+    spec: DataModel,
+    label: str,
+) -> SessionReturn:
     sessions = assets.dash_client.get_user_session_list()
     selected_session: SessionRef | None = st.selectbox(
         label=label,
