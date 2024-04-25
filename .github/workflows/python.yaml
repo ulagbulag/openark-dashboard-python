@@ -58,9 +58,10 @@ jobs:
           # exit-zero treats all errors as warnings
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=80 --statistics
 
-      - name: Lint with pylint
-        run: |
-          pylint $(git ls-files '*.py')
+      # FIXME: enable it when python=3.12 support
+      # - name: Lint with pylint
+      #   run: |
+      #     python -m pylint $(git ls-files '*.py')
 
       - name: Test with pytest
         run: |
