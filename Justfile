@@ -10,6 +10,19 @@ export UBUNTU_VERSION := env_var_or_default('UBUNTU_VERSION', '22.04')
 default:
   @just run
 
+check:
+  # stop if there are Python syntax errors or undefined names
+  flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+  # stop on all errors as warnings
+  flake8 . --count --exit-zero --max-complexity=10 --max-line-length=80 --statistics
+
+  # FIXME: enable it when python=3.12 support
+  # python -m pylint $(git ls-files '*.py')
+
+test: check
+  python -m unittest -v tests/*.py
+
 run *ARGS:
   streamlit run main.py \
     --browser.gatherUsageStats=False \
