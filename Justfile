@@ -21,7 +21,7 @@ check:
   # python -m pylint $(git ls-files '*.py')
 
 test: check
-  python -m unittest -v tests/*.py
+  python -m pytest -v tests/*.py
 
 run *ARGS:
   streamlit run main.py \

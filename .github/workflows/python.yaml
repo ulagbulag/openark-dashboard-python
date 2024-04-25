@@ -65,4 +65,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          python -m unittest -v tests/*.py
+          python -m pytest -v tests/*.py
