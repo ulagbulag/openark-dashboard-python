@@ -7,7 +7,7 @@ from kubegraph.data.template import loads_all
 
 
 def _load_file(filename: str) -> str:
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
         return f.read()
 
 
