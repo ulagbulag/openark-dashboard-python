@@ -6,6 +6,7 @@ jinja2
 jsonpointer
 kubernetes
 langchain
+langchain-community
 langchain-openai
 matplotlib
 networkx
