@@ -51,7 +51,49 @@ class NodeGroupTemplate(BaseTemplate[_NodeGroupSpec]):
         return 'NodeGroup'
 
 
-_Template = NodeTemplate | NodeGroupTemplate
+class _ConstraintSpec(BaseModel):
+    filters: list[str] = []
+    where: list[str] = []
+
+
+class ConstraintTemplate(BaseTemplate[_ConstraintSpec]):
+    spec: _ConstraintSpec
+
+    @override
+    @classmethod
+    def _expected_kind(cls) -> str:
+        return 'Constraint'
+
+
+class _FunctionFakeDataSpec(BaseModel):
+    filters: list[str] = []
+    provides: list[str] = []
+
+
+class _FunctionFakeSpec(BaseModel):
+    type: Literal['Fake']
+
+    input: _FunctionFakeDataSpec = _FunctionFakeDataSpec()
+    output: _FunctionFakeDataSpec = _FunctionFakeDataSpec()
+    script: str
+
+
+_FunctionSpec = _FunctionFakeSpec
+
+
+class FunctionTemplate(BaseTemplate[_FunctionSpec]):
+    spec: _FunctionSpec = Field(discriminator='type')
+
+    @override
+    @classmethod
+    def _expected_kind(cls) -> str:
+        return 'Function'
+
+
+_Template = ConstraintTemplate \
+    | FunctionTemplate \
+    | NodeTemplate \
+    | NodeGroupTemplate
 
 
 def _get_template_type(obj: Any, /) -> type[_Template]:
@@ -59,6 +101,10 @@ def _get_template_type(obj: Any, /) -> type[_Template]:
         doc=obj,
         pointer='/kind',
     ):
+        case 'Constraint':
+            return ConstraintTemplate
+        case 'Function':
+            return FunctionTemplate
         case 'Node':
             return NodeTemplate
         case 'NodeGroup':

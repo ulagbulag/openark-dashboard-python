@@ -23,7 +23,7 @@ async def render(
         ]
     elif isinstance(maybe_sessions, list):
         user_names = [
-            SessionRef.from_aggrid(session).user_name
+            SessionRef.from_data(session).user_name
             for session in maybe_sessions
         ]
     st.text(f'* 노드 수: {len(user_names)}')

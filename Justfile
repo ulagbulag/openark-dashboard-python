@@ -50,4 +50,4 @@ oci-build:
 oci-push: oci-build
 
 oci-push-and-update-dash: oci-push
-  kubectl -n dash delete pods --selector name=management-tool
+  kubectl -n dash rollout restart deploy management-tool

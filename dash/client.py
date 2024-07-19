@@ -328,16 +328,12 @@ class DashClient:
     def post_user_exec(
         self, *, namespace: str | None = None,
         command: str,
-        terminal: bool,
     ) -> None:
         return self._call_raw(
             namespace=namespace,
             method='POST',
             path='/user/desktop/exec/',
-            value=_parse_command(
-                raw=command,
-                terminal=terminal,
-            ),
+            value=[command],
         )
 
     def post_user_exec_broadcast(
@@ -350,10 +346,8 @@ class DashClient:
             method='POST',
             path='/batch/user/desktop/exec/broadcast/',
             value=None if target_user_names is None else {
-                'command': _parse_command(
-                    raw=command,
-                    terminal=terminal,
-                ),
+                'command': [command],
+                'terminal': terminal,
                 'userNames': target_user_names,
                 'wait': wait,
             },
@@ -370,22 +364,5 @@ def _handle_error(path: str, response: requests.Response) -> Never:
         case _:
             raise Exception(
                 f'Failed to execute {path!r}: '
-                'status code [{response.status_code}]'
+                f'status code [{response.status_code}]'
             )
-
-
-def _parse_command(raw: str, terminal: bool) -> list[str]:
-    command = []
-    if terminal:
-        command += [
-            'xfce4-terminal',
-            '--disable-server',
-            '-x',
-        ]
-    command += [
-        '/usr/bin/env',
-        'sh',
-        '-c',
-        raw,
-    ]
-    return command

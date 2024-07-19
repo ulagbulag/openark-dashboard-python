@@ -18,7 +18,9 @@ spec:
       metadata:
         column: All
       spec:
+        filter: name-[bw][a-z0-9-]*
         label: 원격 제어할 노드를 선택해주세요.
+        multiple: false
 
     - name: show_vnc
       kind: RemoteVnc

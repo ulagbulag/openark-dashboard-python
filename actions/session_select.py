@@ -15,11 +15,17 @@ async def render(
     name: str,
     spec: DataModel,
 ) -> SessionReturn:
+    multiple = spec.get(
+        path='/multiple',
+        value_type=bool,
+        default=False,
+    )
+
     filter = spec.get_optional(
         path='/filter',
         value_type=str,
     )
-    if filter is not None:
+    if filter is not None and multiple:
         return _draw_read_filter(
             assets=assets,
             pattern=filter,
@@ -28,13 +34,10 @@ async def render(
     label = spec.get(
         path='/label',
         value_type=str,
+        default='',
     )
 
-    if spec.get(
-        path='/multiple',
-        value_type=bool,
-        default=False,
-    ):
+    if multiple:
         return _draw_read_multiple(
             assets=assets,
             spec=spec,
@@ -45,6 +48,7 @@ async def render(
         assets=assets,
         spec=spec,
         label=label,
+        pattern=filter,
     )
 
 
@@ -92,11 +96,24 @@ def _draw_read_one(
     assets: Assets,
     spec: DataModel,
     label: str,
+    pattern: str | None,
 ) -> SessionReturn:
     sessions = assets.dash_client.get_user_session_list()
+    if pattern:
+        session_filtered = [
+            session
+            for session in sessions
+            if re.fullmatch(
+                pattern=pattern,
+                string=session.user_name,
+            ) is not None
+        ]
+    else:
+        session_filtered = sessions
+
     selected_session: SessionRef | None = st.selectbox(
         label=label,
-        options=sessions,
+        options=session_filtered,
     )
 
     return {

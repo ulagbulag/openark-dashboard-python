@@ -13,9 +13,9 @@ spec:
       kind: SessionSelect
       spec:
         filter: name-[bw][a-z0-9-]*
+        multiple: true
       # spec:
       #   label: 명령을 내릴 노드들을 선택해주세요.
-      #   multiple: true
 
     - name: command
       kind: CommandRead

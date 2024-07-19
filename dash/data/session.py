@@ -13,19 +13,17 @@ class SessionRef:
         self._user_name = user_name
 
     @classmethod
-    def from_aggrid(cls, data: dict[str, str]) -> Self:
-        return cls(
-            namespace=data['Namespace'],
-            node_name=data['NodeName'],
-            user_name=data['Name'],
-        )
-
-    @classmethod
     def from_data(cls, data: dict[str, str]) -> Self:
         return cls(
-            namespace=data['namespace'],
-            node_name=data['nodeName'],
-            user_name=data['userName'],
+            namespace=data['namespace']
+            if 'namespace' in data
+            else data['Namespace'],
+            node_name=data['nodeName']
+            if 'nodeName' in data
+            else data['Namespace'],
+            user_name=data['userName']
+            if 'userName' in data
+            else data['Name'],
         )
 
     @property
